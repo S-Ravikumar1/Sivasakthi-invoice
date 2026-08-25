@@ -1,86 +1,73 @@
-# Siva Sakthi Invoice Billing Website
+# Siva Sakthi Invoice Billing Website — PostgreSQL Edition
 
-A complete billing website built from scratch, with a billing workflow similar in purpose to the referenced invoice application, while using a new implementation and a custom A4 tax-invoice PDF layout based on the supplied sample image.
+A Vite + React billing website with PostgreSQL storage, editable invoice history, automatic invoice numbering, duplicate-number versioning, and an A4 tax-invoice PDF layout.
 
-Reference application: https://sivashakthi-invoice.vercel.app/
+## Database features
 
-## Features
+- PostgreSQL stores every saved invoice.
+- Refreshing the page starts a new invoice using the next numeric invoice number.
+- Saved invoices can be searched and opened again for editing.
+- Saving a new invoice with an existing number automatically versions the previous invoices:
+  - `10` → `10a`
+  - next new `10` → old `10a` becomes `10b`, old `10` becomes `10a`
+  - next new `10` → `10a` → `10b`, `10b` → `10c`
+- Existing saved invoices are updated in place when edited.
+- Invoice number and date are displayed at 16px bold.
+- Party name and address remain 16px.
+- PDF/print invoice is A4.
 
-- Invoice number and date
-- Seller/company details
-- Customer/party details
-- Multiple invoice items
-- HSN code, quantity and rate
-- Automatic line totals
-- CGST + SGST or IGST
-- GST rate control
-- Round-off and grand total
-- Amount in words
-- Live A4 preview
-- Print invoice
-- Download PDF
-- Browser local-storage draft saving
-- New invoice action
-- Responsive desktop/tablet/mobile UI
-- Vercel-ready Vite project
+## PostgreSQL setup
 
-## Run locally
+Create a PostgreSQL database using Neon, Supabase, Railway, or another PostgreSQL provider.
 
-Requirements:
-- Node.js 18+
+Run `db/schema.sql` once in the database SQL editor.
 
-Install:
+Then add this Vercel environment variable:
 
-```bash
-npm install
+```text
+DATABASE_URL=your-postgresql-connection-string
 ```
 
-Run development server:
+Use the same variable for Production and Preview if you want both environments to use the same database.
 
-```bash
-npm run dev
-```
+## GitHub / Vercel structure
 
-Build production:
+The repository root should contain:
 
-```bash
+- `index.html`
+- `main.jsx`
+- `styles.css`
+- `package.json`
+- `vite.config.js`
+- `api/invoices.js`
+- `api/next-invoice-number.js`
+- `api/_db.js`
+- `api/_invoice.js`
+- `db/schema.sql`
+
+Vercel detects the Vite frontend and the `/api` serverless functions automatically.
+
+Build command:
+
+```text
 npm run build
 ```
 
-Preview production build:
+Output directory:
 
-```bash
-npm run preview
+```text
+dist
 ```
 
-## Deploy to Vercel
+## Local development
 
-1. Upload this folder to GitHub.
-2. Import the repository into Vercel.
-3. Framework preset: Vite.
-4. Build command: `npm run build`
-5. Output directory: `dist`
-6. Deploy.
+```bash
+npm install
+npm run dev
+```
+
+For local API/database testing, set `DATABASE_URL` in the environment before starting the Vite/Vercel development environment.
 
 ## Important
 
-This is a front-end billing application. It does not connect to the GST portal, e-invoice API, accounting software, payment gateway, or a server database.
-
-For production use, add authentication, server-side storage, invoice history, backups, GST validation, role permissions, and a compliant e-invoicing integration where required.
-
-## Vercel upload structure
-
-The repository root must look like this:
-
-- `index.html`
-- `package.json`
-- `vite.config.js`
-- `vercel.json`
-- `src/main.jsx`
-- `src/styles.css`
-
-Do not upload the ZIP file itself as the application source, and do not put these files inside an extra nested folder.
-
-
-## Product item columns
-Every product supports multiple item rows with DC NO and PCS. There is no automatic 1, 2, 3 numbering. Total PCS is multiplied by the product's single rate. Rate display preserves the decimal precision entered by the user.
+This application stores invoice data in PostgreSQL but does not submit GST invoices to the government portal or generate IRNs/e-invoices. Any required GST/e-invoicing compliance integration should be added separately according to the business's requirements.

@@ -6,10 +6,8 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const STORAGE_KEY = "siva-sakthi-invoice-v1";
-
 const defaultInvoice = {
-  invoiceNo: "00008/2024-25",
+  invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
   companyName: "SIVA SAKTHI HOSIERY",
   companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
@@ -26,22 +24,6 @@ const defaultInvoice = {
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
   ]
 };
-
-function loadInvoice() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return defaultInvoice;
-    const data = { ...defaultInvoice, ...JSON.parse(saved) };
-    if (!data.products && data.items) {
-      data.products = data.items.map(item => ({
-        id: crypto.randomUUID(), name: item.description || "", hsn: item.hsn || "", rate: item.rate || 0,
-        items: [{ id: crypto.randomUUID(), name: item.description || "", qty: item.pcs || 1 }]
-      }));
-      delete data.items;
-    }
-    return data;
-  } catch { return defaultInvoice; }
-}
 
 function money(value) {
   return Number(value || 0).toLocaleString("en-IN", {
@@ -85,10 +67,34 @@ function formatDate(value) {
   return d.toLocaleDateString("en-IN");
 }
 
+async function getNextInvoiceNumber() {
+  const response = await fetch("/api/next-invoice-number");
+  if (!response.ok) throw new Error("Could not get next invoice number");
+  const result = await response.json();
+  return result.invoiceNo;
+}
+
+function normalizeInvoiceRow(row) {
+  return {
+    id: row.id,
+    invoiceNo: row.invoice_no,
+    date: String(row.invoice_date || "").slice(0, 10),
+    ...row.data,
+    invoiceNo: row.invoice_no,
+    date: String(row.invoice_date || row.data?.date || "").slice(0, 10),
+  };
+}
+
 function App() {
-  const [invoice, setInvoice] = useState(loadInvoice);
+  const [invoice, setInvoice] = useState(() => ({ ...defaultInvoice, invoiceNo: "" }));
+  const [invoiceId, setInvoiceId] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loadingNumber, setLoadingNumber] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [historySearch, setHistorySearch] = useState("");
   const printRef = useRef(null);
 
   const productTotals = useMemo(() => (
@@ -113,8 +119,64 @@ function App() {
   const addProductItem = productId => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: [...p.items, { id: crypto.randomUUID(), dcNo: "", pcs: 1 }] } : p) }));
   const updateProductItem = (productId, itemId, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: p.items.map(i => i.id === itemId ? { ...i, [key]: value } : i) } : p) }));
   const removeProductItem = (productId, itemId) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => { if (p.id !== productId) return p; const items = p.items.length === 1 ? [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] : p.items.filter(i => i.id !== itemId); return { ...p, items }; }) }));
-  const save = () => { localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice)); setSaved(true); setTimeout(() => setSaved(false), 1800); };
-  const reset = () => { if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return; setInvoice({ ...defaultInvoice, invoiceNo: "", date: new Date().toISOString().slice(0,10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }); localStorage.removeItem(STORAGE_KEY); };
+  const save = async () => {
+    if (!invoice.invoiceNo.trim()) { alert("Enter an invoice number"); return; }
+    setSaving(true);
+    try {
+      const response = await fetch("/api/invoices", {
+        method: invoiceId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: invoiceId,
+          invoiceNo: invoice.invoiceNo,
+          date: invoice.date,
+          data: invoice
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not save invoice");
+      setInvoiceId(result.id);
+      setInvoice({ ...result.data, invoiceNo: result.invoice_no, date: String(result.invoice_date).slice(0, 10) });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1800);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startNewInvoice = async (ask = true) => {
+    if (ask && !confirm("Start a new invoice? Current unsaved data will be cleared.")) return;
+    try {
+      setLoadingNumber(true);
+      const nextNo = await getNextInvoiceNumber();
+      setInvoice({ ...defaultInvoice, invoiceNo: nextNo, date: new Date().toISOString().slice(0, 10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] });
+      setInvoiceId(null);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoadingNumber(false);
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const query = historySearch.trim() ? `?invoiceNo=${encodeURIComponent(historySearch.trim())}` : "";
+      const response = await fetch(`/api/invoices${query}`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not load invoices");
+      setHistory(Array.isArray(result) ? result : []);
+      setShowHistory(true);
+    } catch (error) { alert(error.message); }
+  };
+
+  const openInvoice = (row) => {
+    setInvoiceId(row.id);
+    setInvoice(normalizeInvoiceRow(row));
+    setShowHistory(false);
+  };
+
   const downloadPdf = async () => {
     const { jsPDF } = await import("jspdf");
     const html2canvas = (await import("html2canvas")).default;
@@ -137,6 +199,23 @@ function App() {
   const printInvoice = () => window.print();
 
   useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        setLoadingNumber(true);
+        const nextNo = await getNextInvoiceNumber();
+        if (active && !invoiceId) setInvoice(prev => ({ ...prev, invoiceNo: nextNo }));
+      } catch (error) {
+        console.error(error);
+        if (active && !invoice.invoiceNo) setInvoice(prev => ({ ...prev, invoiceNo: "1" }));
+      } finally {
+        if (active) setLoadingNumber(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
     document.title = `${invoice.companyName || "Invoice"} - ${invoice.invoiceNo || "Tax Invoice"}`;
   }, [invoice.companyName, invoice.invoiceNo]);
 
@@ -151,8 +230,9 @@ function App() {
           </div>
         </div>
         <div className="top-actions">
-          <button className="btn ghost" onClick={reset}><RotateCcw size={16}/> New</button>
-          <button className="btn ghost" onClick={save}><Save size={16}/> {saved ? "Saved" : "Save"}</button>
+          <button className="btn ghost" onClick={() => startNewInvoice(true)}><RotateCcw size={16}/> New</button>
+          <button className="btn ghost" onClick={loadHistory}><Search size={16}/> Invoices</button>
+          <button className="btn ghost" onClick={save} disabled={saving || loadingNumber}><Save size={16}/> {saving ? "Saving..." : saved ? "Saved" : "Save"}</button>
           <button className="btn dark" onClick={() => setShowPreview(true)}><Eye size={16}/> Preview</button>
         </div>
       </header>
@@ -174,8 +254,8 @@ function App() {
             <div className="card">
               <div className="card-title"><Settings2 size={18}/> Invoice Details</div>
               <div className="form-grid two">
-                <Field label="Invoice Number"><input value={invoice.invoiceNo} onChange={e => update("invoiceNo", e.target.value)} /></Field>
-                <Field label="Invoice Date"><input type="date" value={invoice.date} onChange={e => update("date", e.target.value)} /></Field>
+                <Field label="Invoice Number"><input className="invoice-detail-input" value={invoice.invoiceNo} readOnly={Boolean(invoiceId)} onChange={e => update("invoiceNo", e.target.value)} /></Field>
+                <Field label="Invoice Date"><input className="invoice-detail-input" type="date" value={invoice.date} onChange={e => update("date", e.target.value)} /></Field>
               </div>
             </div>
 
@@ -261,6 +341,24 @@ function App() {
         </div>
       </div>
 
+      {showHistory && (
+        <div className="modal-backdrop" onClick={() => setShowHistory(false)}>
+          <div className="modal history-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-head"><b>Saved Invoices</b><button className="icon-btn" onClick={() => setShowHistory(false)}><X size={18}/></button></div>
+            <div className="history-search"><input placeholder="Search invoice number" value={historySearch} onChange={e => setHistorySearch(e.target.value)} onKeyDown={e => e.key === "Enter" && loadHistory()} /><button className="btn outline" onClick={loadHistory}><Search size={15}/> Search</button></div>
+            <div className="history-list">
+              {history.length === 0 ? <div className="history-empty">No invoices found.</div> : history.map(row => (
+                <button className="history-row" key={row.id} onClick={() => openInvoice(row)}>
+                  <span><b>{row.invoice_no}</b><small>{String(row.invoice_date).slice(0, 10)}</small></span>
+                  <span className="history-party">{row.data?.partyName || "No party name"}</span>
+                  <span>Open</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPreview && (
         <div className="modal-backdrop" onClick={() => setShowPreview(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -286,8 +384,8 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         <div className="invoice-top">
           <div className="tax-title">TAX INVOICE</div>
           <div className="invoice-meta">
-            <div><b>INVOICE NO:</b> {invoice.invoiceNo}</div>
-            <div><b>DATE:</b> {formatDate(invoice.date)}</div>
+            <div><b>INVOICE NO:</b> <strong>{invoice.invoiceNo}</strong></div>
+            <div><b>DATE:</b> <strong>{formatDate(invoice.date)}</strong></div>
           </div>
         </div>
 
