@@ -67,3 +67,16 @@ npm run preview
 This is a front-end billing application. It does not connect to the GST portal, e-invoice API, accounting software, payment gateway, or a server database.
 
 For production use, add authentication, server-side storage, invoice history, backups, GST validation, role permissions, and a compliant e-invoicing integration where required.
+
+## Vercel upload structure
+
+The repository root must look like this:
+
+- `index.html`
+- `package.json`
+- `vite.config.js`
+- `vercel.json`
+- `src/main.jsx`
+- `src/styles.css`
+
+Do not upload the ZIP file itself as the application source, and do not put these files inside an extra nested folder.
