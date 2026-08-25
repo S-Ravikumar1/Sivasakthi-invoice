@@ -80,3 +80,7 @@ The repository root must look like this:
 - `src/styles.css`
 
 Do not upload the ZIP file itself as the application source, and do not put these files inside an extra nested folder.
+
+
+## Product item columns
+Every product supports multiple item rows with DC NO and PCS. There is no automatic 1, 2, 3 numbering. Total PCS is multiplied by the product's single rate. Rate display preserves the decimal precision entered by the user.

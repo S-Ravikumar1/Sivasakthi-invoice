@@ -23,7 +23,7 @@ const defaultInvoice = {
   gstRate: 18,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
-      items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }
+      items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
   ]
 };
 
@@ -35,7 +35,7 @@ function loadInvoice() {
     if (!data.products && data.items) {
       data.products = data.items.map(item => ({
         id: crypto.randomUUID(), name: item.description || "", hsn: item.hsn || "", rate: item.rate || 0,
-        items: [{ id: crypto.randomUUID(), name: item.description || "", qty: item.qty || 1 }]
+        items: [{ id: crypto.randomUUID(), name: item.description || "", qty: item.pcs || 1 }]
       }));
       delete data.items;
     }
@@ -49,6 +49,13 @@ function money(value) {
     currency: "INR",
     minimumFractionDigits: 2
   });
+}
+function rateDisplay(value) {
+  const raw = String(value ?? "").trim();
+  if (raw === "") return "";
+  const num = Number(raw);
+  if (!Number.isFinite(num)) return raw;
+  return `₹${num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 })}`;
 }
 
 function numberToWordsIndian(number) {
@@ -86,7 +93,7 @@ function App() {
 
   const productTotals = useMemo(() => (
     (invoice.products || []).map(product => {
-      const totalQty = (product.items || []).reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      const totalQty = (product.items || []).reduce((sum, item) => sum + Number(item.pcs || 0), 0);
       return { ...product, totalQty, amount: totalQty * Number(product.rate || 0) };
     })
   ), [invoice.products]);
@@ -101,13 +108,13 @@ function App() {
   const roundOff = grandTotal - exactTotal;
   const update = (key, value) => setInvoice(prev => ({ ...prev, [key]: value }));
   const updateProduct = (id, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === id ? { ...p, [key]: value } : p) }));
-  const addProduct = () => setInvoice(prev => ({ ...prev, products: [...(prev.products || []), { id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] }));
-  const removeProduct = id => setInvoice(prev => ({ ...prev, products: prev.products.length === 1 ? [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] : prev.products.filter(p => p.id !== id) }));
-  const addProductItem = productId => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: [...p.items, { id: crypto.randomUUID(), name: "", qty: 1 }] } : p) }));
+  const addProduct = () => setInvoice(prev => ({ ...prev, products: [...(prev.products || []), { id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }));
+  const removeProduct = id => setInvoice(prev => ({ ...prev, products: prev.products.length === 1 ? [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] : prev.products.filter(p => p.id !== id) }));
+  const addProductItem = productId => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: [...p.items, { id: crypto.randomUUID(), dcNo: "", pcs: 1 }] } : p) }));
   const updateProductItem = (productId, itemId, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: p.items.map(i => i.id === itemId ? { ...i, [key]: value } : i) } : p) }));
-  const removeProductItem = (productId, itemId) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => { if (p.id !== productId) return p; const items = p.items.length === 1 ? [{ id: crypto.randomUUID(), name: "", qty: 1 }] : p.items.filter(i => i.id !== itemId); return { ...p, items }; }) }));
+  const removeProductItem = (productId, itemId) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => { if (p.id !== productId) return p; const items = p.items.length === 1 ? [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] : p.items.filter(i => i.id !== itemId); return { ...p, items }; }) }));
   const save = () => { localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice)); setSaved(true); setTimeout(() => setSaved(false), 1800); };
-  const reset = () => { if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return; setInvoice({ ...defaultInvoice, invoiceNo: "", date: new Date().toISOString().slice(0,10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] }); localStorage.removeItem(STORAGE_KEY); };
+  const reset = () => { if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return; setInvoice({ ...defaultInvoice, invoiceNo: "", date: new Date().toISOString().slice(0,10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }); localStorage.removeItem(STORAGE_KEY); };
   const downloadPdf = async () => { const { jsPDF } = await import("jspdf"); const html2canvas = (await import("html2canvas")).default; const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true }); const pdf = new jsPDF("p", "mm", "a4"); const ratio = Math.min(210 / canvas.width, 297 / canvas.height); pdf.addImage(canvas.toDataURL("image/png"), "PNG", (210-canvas.width*ratio)/2, 0, canvas.width*ratio, canvas.height*ratio); pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`); };
   const printInvoice = () => window.print();
 
@@ -176,10 +183,10 @@ function App() {
 
             <div className="card">
               <div className="card-head-row"><div className="card-title"><FileText size={18}/> Products</div><button className="small-add" onClick={addProduct}><Plus size={15}/> Add Product</button></div>
-              <div className="product-help">Add a product, then add multiple items under it. All item quantities are combined and multiplied by the single rate for that product.</div>
+              <div className="product-help">Add a product, then add multiple items under it. All PCS values are added together and multiplied by the single rate for that product.</div>
               <div className="product-list">
                 {(invoice.products || []).map((product, pi) => {
-                  const totalQty = product.items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+                  const totalQty = product.items.reduce((sum, item) => sum + Number(item.pcs || 0), 0);
                   const totalAmount = totalQty * Number(product.rate || 0);
                   return <div className="product-card" key={product.id}>
                     <div className="product-card-head"><strong>Product {pi+1}</strong><button className="icon-btn danger" onClick={() => removeProduct(product.id)}><Trash2 size={16}/></button></div>
@@ -189,8 +196,13 @@ function App() {
                       <Field label="Single Rate"><input type="number" min="0" step="0.01" value={product.rate} onChange={e => updateProduct(product.id,"rate",e.target.value)} /></Field>
                     </div>
                     <div className="subitems-head"><span>Items under this product</span><button className="small-add" onClick={() => addProductItem(product.id)}><Plus size={14}/> Add Item</button></div>
-                    {product.items.map((item,ii) => <div className="subitem-row" key={item.id}><span className="subitem-number">{ii+1}</span><input placeholder="Item description / size / color" value={item.name} onChange={e => updateProductItem(product.id,item.id,"name",e.target.value)} /><input type="number" min="0" step="0.01" value={item.qty} onChange={e => updateProductItem(product.id,item.id,"qty",e.target.value)} /><button className="icon-btn danger" onClick={() => removeProductItem(product.id,item.id)}><Trash2 size={15}/></button></div>)}
-                    <div className="product-total"><span>Total Qty: <b>{totalQty}</b></span><span>Rate: <b>{money(product.rate)}</b></span><span>Product Total: <b>{money(totalAmount)}</b></span></div>
+                    <div className="subitems-labels"><span>DC NO</span><span>PCS</span><span></span></div>
+                    {product.items.map(item => <div className="subitem-row" key={item.id}>
+                      <input placeholder="DC No" value={item.dcNo || ""} onChange={e => updateProductItem(product.id,item.id,"dcNo",e.target.value)} />
+                      <input type="number" min="0" step="1" value={item.pcs} onChange={e => updateProductItem(product.id,item.id,"pcs",e.target.value)} />
+                      <button className="icon-btn danger" onClick={() => removeProductItem(product.id,item.id)}><Trash2 size={15}/></button>
+                    </div>)}
+                    <div className="product-total"><span>Total PCS: <b>{totalQty}</b></span><span>Rate: <b>{rateDisplay(product.rate)}</b></span><span>Product Total: <b>{money(totalAmount)}</b></span></div>
                   </div>;
                 })}
               </div>
@@ -287,11 +299,20 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           </thead>
           <tbody>
             {(invoice.products || []).map(product => {
-              const totalQty = product.items.reduce((sum,item) => sum + Number(item.qty || 0), 0);
+              const totalQty = product.items.reduce((sum,item) => sum + Number(item.pcs || 0), 0);
               const amount = totalQty * Number(product.rate || 0);
               return <tr key={product.id}>
-                <td className="desc"><div className="pdf-product-name">{product.name || "Product"}</div>{product.items.map((item,index) => <div className="pdf-product-item" key={item.id}>{index+1}. {item.name || "Item"} — Qty {item.qty || 0}</div>)}<div className="pdf-product-total">Total Qty: {totalQty}</div></td>
-                <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{money(product.rate)}</td><td className="right">{money(amount)}</td>
+                <td className="desc">
+  <div className="pdf-product-name">{product.name || "Product"}</div>
+  <div className="pdf-item-heading"><span>DC NO</span><span>PCS</span></div>
+  {product.items.map(item => (
+    <div className="pdf-product-item" key={item.id}>
+      <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
+    </div>
+  ))}
+  <div className="pdf-product-total">Total PCS: {totalQty}</div>
+</td>
+                <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
             })}
             <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
