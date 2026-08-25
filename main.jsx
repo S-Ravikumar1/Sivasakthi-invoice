@@ -21,18 +21,26 @@ const defaultInvoice = {
   partyGstin: "",
   taxMode: "cgstsgst",
   gstRate: 18,
-  items: [
-    { id: crypto.randomUUID(), description: "", hsn: "", qty: 1, rate: 0 }
+  products: [
+    { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
+      items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }
   ]
 };
 
 function loadInvoice() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? { ...defaultInvoice, ...JSON.parse(saved) } : defaultInvoice;
-  } catch {
-    return defaultInvoice;
-  }
+    if (!saved) return defaultInvoice;
+    const data = { ...defaultInvoice, ...JSON.parse(saved) };
+    if (!data.products && data.items) {
+      data.products = data.items.map(item => ({
+        id: crypto.randomUUID(), name: item.description || "", hsn: item.hsn || "", rate: item.rate || 0,
+        items: [{ id: crypto.randomUUID(), name: item.description || "", qty: item.qty || 1 }]
+      }));
+      delete data.items;
+    }
+    return data;
+  } catch { return defaultInvoice; }
 }
 
 function money(value) {
@@ -76,11 +84,14 @@ function App() {
   const [showPreview, setShowPreview] = useState(false);
   const printRef = useRef(null);
 
-  const subtotal = useMemo(
-    () => invoice.items.reduce((sum, item) => sum + Number(item.qty || 0) * Number(item.rate || 0), 0),
-    [invoice.items]
-  );
+  const productTotals = useMemo(() => (
+    (invoice.products || []).map(product => {
+      const totalQty = (product.items || []).reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      return { ...product, totalQty, amount: totalQty * Number(product.rate || 0) };
+    })
+  ), [invoice.products]);
 
+  const subtotal = productTotals.reduce((sum, product) => sum + product.amount, 0);
   const gst = subtotal * Number(invoice.gstRate || 0) / 100;
   const cgst = invoice.taxMode === "cgstsgst" ? gst / 2 : 0;
   const sgst = invoice.taxMode === "cgstsgst" ? gst / 2 : 0;
@@ -88,65 +99,16 @@ function App() {
   const exactTotal = subtotal + gst;
   const grandTotal = Math.round(exactTotal);
   const roundOff = grandTotal - exactTotal;
-
   const update = (key, value) => setInvoice(prev => ({ ...prev, [key]: value }));
-
-  const updateItem = (id, key, value) => {
-    setInvoice(prev => ({
-      ...prev,
-      items: prev.items.map(item => item.id === id ? { ...item, [key]: value } : item)
-    }));
-  };
-
-  const addItem = () => {
-    setInvoice(prev => ({
-      ...prev,
-      items: [...prev.items, { id: crypto.randomUUID(), description: "", hsn: "", qty: 1, rate: 0 }]
-    }));
-  };
-
-  const removeItem = (id) => {
-    setInvoice(prev => ({
-      ...prev,
-      items: prev.items.length === 1
-        ? [{ id: crypto.randomUUID(), description: "", hsn: "", qty: 1, rate: 0 }]
-        : prev.items.filter(item => item.id !== id)
-    }));
-  };
-
-  const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
-  };
-
-  const reset = () => {
-    if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return;
-    setInvoice({
-      ...defaultInvoice,
-      invoiceNo: "",
-      date: new Date().toISOString().slice(0, 10),
-      items: [{ id: crypto.randomUUID(), description: "", hsn: "", qty: 1, rate: 0 }]
-    });
-    localStorage.removeItem(STORAGE_KEY);
-  };
-
-  const downloadPdf = async () => {
-    const { jsPDF } = await import("jspdf");
-    const html2canvas = (await import("html2canvas")).default;
-    const element = printRef.current;
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-    const w = canvas.width * ratio;
-    const h = canvas.height * ratio;
-    pdf.addImage(imgData, "PNG", (pageWidth - w) / 2, 0, w, h);
-    pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
-  };
-
+  const updateProduct = (id, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === id ? { ...p, [key]: value } : p) }));
+  const addProduct = () => setInvoice(prev => ({ ...prev, products: [...(prev.products || []), { id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] }));
+  const removeProduct = id => setInvoice(prev => ({ ...prev, products: prev.products.length === 1 ? [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] : prev.products.filter(p => p.id !== id) }));
+  const addProductItem = productId => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: [...p.items, { id: crypto.randomUUID(), name: "", qty: 1 }] } : p) }));
+  const updateProductItem = (productId, itemId, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, items: p.items.map(i => i.id === itemId ? { ...i, [key]: value } : i) } : p) }));
+  const removeProductItem = (productId, itemId) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => { if (p.id !== productId) return p; const items = p.items.length === 1 ? [{ id: crypto.randomUUID(), name: "", qty: 1 }] : p.items.filter(i => i.id !== itemId); return { ...p, items }; }) }));
+  const save = () => { localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice)); setSaved(true); setTimeout(() => setSaved(false), 1800); };
+  const reset = () => { if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return; setInvoice({ ...defaultInvoice, invoiceNo: "", date: new Date().toISOString().slice(0,10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), name: "", qty: 1 }] }] }); localStorage.removeItem(STORAGE_KEY); };
+  const downloadPdf = async () => { const { jsPDF } = await import("jspdf"); const html2canvas = (await import("html2canvas")).default; const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true }); const pdf = new jsPDF("p", "mm", "a4"); const ratio = Math.min(210 / canvas.width, 297 / canvas.height); pdf.addImage(canvas.toDataURL("image/png"), "PNG", (210-canvas.width*ratio)/2, 0, canvas.width*ratio, canvas.height*ratio); pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`); };
   const printInvoice = () => window.print();
 
   useEffect(() => {
@@ -213,22 +175,25 @@ function App() {
             </div>
 
             <div className="card">
-              <div className="card-head-row">
-                <div className="card-title"><FileText size={18}/> Items</div>
-                <button className="small-add" onClick={addItem}><Plus size={15}/> Add Item</button>
+              <div className="card-head-row"><div className="card-title"><FileText size={18}/> Products</div><button className="small-add" onClick={addProduct}><Plus size={15}/> Add Product</button></div>
+              <div className="product-help">Add a product, then add multiple items under it. All item quantities are combined and multiplied by the single rate for that product.</div>
+              <div className="product-list">
+                {(invoice.products || []).map((product, pi) => {
+                  const totalQty = product.items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+                  const totalAmount = totalQty * Number(product.rate || 0);
+                  return <div className="product-card" key={product.id}>
+                    <div className="product-card-head"><strong>Product {pi+1}</strong><button className="icon-btn danger" onClick={() => removeProduct(product.id)}><Trash2 size={16}/></button></div>
+                    <div className="form-grid product-main-grid">
+                      <Field label="Product Name"><input placeholder="Product name" value={product.name} onChange={e => updateProduct(product.id,"name",e.target.value)} /></Field>
+                      <Field label="HSN Code"><input placeholder="HSN" value={product.hsn} onChange={e => updateProduct(product.id,"hsn",e.target.value)} /></Field>
+                      <Field label="Single Rate"><input type="number" min="0" step="0.01" value={product.rate} onChange={e => updateProduct(product.id,"rate",e.target.value)} /></Field>
+                    </div>
+                    <div className="subitems-head"><span>Items under this product</span><button className="small-add" onClick={() => addProductItem(product.id)}><Plus size={14}/> Add Item</button></div>
+                    {product.items.map((item,ii) => <div className="subitem-row" key={item.id}><span className="subitem-number">{ii+1}</span><input placeholder="Item description / size / color" value={item.name} onChange={e => updateProductItem(product.id,item.id,"name",e.target.value)} /><input type="number" min="0" step="0.01" value={item.qty} onChange={e => updateProductItem(product.id,item.id,"qty",e.target.value)} /><button className="icon-btn danger" onClick={() => removeProductItem(product.id,item.id)}><Trash2 size={15}/></button></div>)}
+                    <div className="product-total"><span>Total Qty: <b>{totalQty}</b></span><span>Rate: <b>{money(product.rate)}</b></span><span>Product Total: <b>{money(totalAmount)}</b></span></div>
+                  </div>;
+                })}
               </div>
-              <div className="item-editor-head">
-                <span>Description</span><span>HSN</span><span>Qty</span><span>Rate</span><span></span>
-              </div>
-              {invoice.items.map(item => (
-                <div className="item-editor-row" key={item.id}>
-                  <input placeholder="Product / service" value={item.description} onChange={e => updateItem(item.id, "description", e.target.value)} />
-                  <input placeholder="HSN" value={item.hsn} onChange={e => updateItem(item.id, "hsn", e.target.value)} />
-                  <input type="number" min="0" step="0.01" value={item.qty} onChange={e => updateItem(item.id, "qty", e.target.value)} />
-                  <input type="number" min="0" step="0.01" value={item.rate} onChange={e => updateItem(item.id, "rate", e.target.value)} />
-                  <button className="icon-btn danger" onClick={() => removeItem(item.id)} title="Delete item"><Trash2 size={16}/></button>
-                </div>
-              ))}
             </div>
 
             <div className="card">
@@ -321,15 +286,14 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
             </tr>
           </thead>
           <tbody>
-            {invoice.items.map((item, i) => (
-              <tr key={item.id}>
-                <td className="desc">{item.description}</td>
-                <td>{item.hsn}</td>
-                <td className="right">{item.qty || ""}</td>
-                <td className="right">{money(item.rate)}</td>
-                <td className="right">{money(Number(item.qty || 0) * Number(item.rate || 0))}</td>
-              </tr>
-            ))}
+            {(invoice.products || []).map(product => {
+              const totalQty = product.items.reduce((sum,item) => sum + Number(item.qty || 0), 0);
+              const amount = totalQty * Number(product.rate || 0);
+              return <tr key={product.id}>
+                <td className="desc"><div className="pdf-product-name">{product.name || "Product"}</div>{product.items.map((item,index) => <div className="pdf-product-item" key={item.id}>{index+1}. {item.name || "Item"} — Qty {item.qty || 0}</div>)}<div className="pdf-product-total">Total Qty: {totalQty}</div></td>
+                <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{money(product.rate)}</td><td className="right">{money(amount)}</td>
+              </tr>;
+            })}
             <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
