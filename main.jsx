@@ -115,7 +115,25 @@ function App() {
   const removeProductItem = (productId, itemId) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => { if (p.id !== productId) return p; const items = p.items.length === 1 ? [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] : p.items.filter(i => i.id !== itemId); return { ...p, items }; }) }));
   const save = () => { localStorage.setItem(STORAGE_KEY, JSON.stringify(invoice)); setSaved(true); setTimeout(() => setSaved(false), 1800); };
   const reset = () => { if (!confirm("Start a new invoice? Current unsaved data will be cleared.")) return; setInvoice({ ...defaultInvoice, invoiceNo: "", date: new Date().toISOString().slice(0,10), products: [{ id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }); localStorage.removeItem(STORAGE_KEY); };
-  const downloadPdf = async () => { const { jsPDF } = await import("jspdf"); const html2canvas = (await import("html2canvas")).default; const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true }); const pdf = new jsPDF("p", "mm", "a4"); const ratio = Math.min(210 / canvas.width, 297 / canvas.height); pdf.addImage(canvas.toDataURL("image/png"), "PNG", (210-canvas.width*ratio)/2, 0, canvas.width*ratio, canvas.height*ratio); pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`); };
+  const downloadPdf = async () => {
+    const { jsPDF } = await import("jspdf");
+    const html2canvas = (await import("html2canvas")).default;
+    const element = printRef.current;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      width: element.clientWidth,
+      height: element.clientHeight,
+      windowWidth: element.clientWidth,
+      windowHeight: element.clientHeight,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      scrollX: 0,
+      scrollY: 0
+    });
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297, undefined, "FAST");
+    pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
+  };
   const printInvoice = () => window.print();
 
   useEffect(() => {
@@ -282,8 +300,8 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
 
         <div className="party-block">
           <b>PARTY'S NAME:</b>
-          <div>{invoice.partyName}</div>
-          <div>{invoice.partyAddress}</div>
+          <div className="party-name">{invoice.partyName}</div>
+          <div className="party-address">{invoice.partyAddress}</div>
           <div>GSTIN: {invoice.partyGstin || "—"}</div>
         </div>
 
