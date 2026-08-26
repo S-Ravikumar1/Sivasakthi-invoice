@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api-invoices.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api-next-invoice-number.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api-health.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/invoices",
+      "dest": "/api-invoices.js"
+    },
+    {
+      "src": "/api/next-invoice-number",
+      "dest": "/api-next-invoice-number.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api-health.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

@@ -67,10 +67,21 @@ function formatDate(value) {
   return d.toLocaleDateString("en-IN");
 }
 
+async function readApiResponse(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Server returned ${response.status} instead of JSON. Make sure the /api folder was uploaded to GitHub and DATABASE_URL is set in Vercel.`
+    );
+  }
+}
+
 async function getNextInvoiceNumber() {
   const response = await fetch("/api/next-invoice-number");
-  if (!response.ok) throw new Error("Could not get next invoice number");
-  const result = await response.json();
+  const result = await readApiResponse(response);
+  if (!response.ok) throw new Error(result.error || "Could not get next invoice number");
   return result.invoiceNo;
 }
 
@@ -133,7 +144,7 @@ function App() {
           data: invoice
         })
       });
-      const result = await response.json();
+      const result = await readApiResponse(response);
       if (!response.ok) throw new Error(result.error || "Could not save invoice");
       setInvoiceId(result.id);
       setInvoice({ ...result.data, invoiceNo: result.invoice_no, date: String(result.invoice_date).slice(0, 10) });
@@ -164,7 +175,7 @@ function App() {
     try {
       const query = historySearch.trim() ? `?invoiceNo=${encodeURIComponent(historySearch.trim())}` : "";
       const response = await fetch(`/api/invoices${query}`);
-      const result = await response.json();
+      const result = await readApiResponse(response);
       if (!response.ok) throw new Error(result.error || "Could not load invoices");
       setHistory(Array.isArray(result) ? result : []);
       setShowHistory(true);
