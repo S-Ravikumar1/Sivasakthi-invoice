@@ -10,15 +10,15 @@ const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
   companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2 B.S.Sundaram street, Avinashi, Tiruppur, 641654",
+  companyAddress: "19 A-2, B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
   phone: "9843356611",
-  email: " ",
+  email: "",
   gstin: "33AWAPS4955J1Z8",
   partyName: "CUSTOMER NAME",
   partyAddress: "Customer Address, City, State, PIN",
   partyGstin: "",
   taxMode: "cgstsgst",
-  gstRate: 5,
+  gstRate: 18,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
