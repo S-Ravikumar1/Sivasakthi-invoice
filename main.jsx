@@ -189,23 +189,29 @@ function App() {
   };
 
   const downloadPdf = async () => {
-    const { jsPDF } = await import("jspdf");
-    const html2canvas = (await import("html2canvas")).default;
-    const element = printRef.current;
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      width: element.clientWidth,
-      height: element.clientHeight,
-      windowWidth: element.clientWidth,
-      windowHeight: element.clientHeight,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      scrollX: 0,
-      scrollY: 0
-    });
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
-    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297, undefined, "FAST");
-    pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
+    try {
+      const response = await fetch("/api/render-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoice, products: productTotals, subtotal, gst, cgst, sgst, igst, roundOff, grandTotal, taxRate })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "PDF service failed");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${invoice.invoiceNo || "tax-invoice"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert("PDF generation failed. Please check the Render PDF service.");
+    }
   };
   const printInvoice = () => window.print();
 
@@ -437,7 +443,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
       <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
     </div>
   ))}
-  <div className="pdf-product-total">Total PCS: {totalQty}</div>
+  <div className="pdf-product-total-row"><span></span><span>Total PCS: {totalQty}</span></div>
 </td>
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
@@ -446,8 +452,11 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           </tbody>
         </table>
 
-        <div className="invoice-bottom no-terms">
-          <div></div>
+        <div className="invoice-summary-row">
+          <div className="words">
+            <b>Total Amount (Rs. in Words):</b>
+            <div>{numberToWordsIndian(grandTotal)} Rupees Only</div>
+          </div>
           <div className="totals">
             <div className="total-row"><span>Total</span><b>{money(subtotal)}</b></div>
             {invoice.taxMode === "cgstsgst" ? <>
@@ -459,11 +468,15 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           </div>
         </div>
 
-        <div className="words"><b>Total Amount (Rs. in Words):</b> {numberToWordsIndian(grandTotal)} Rupees Only</div>
-
-        <div className="signature">
-          <div><b>For {invoice.companyName}</b></div>
-          <div className="authorized">Authorized Signatory</div>
+        <div className="declaration-signature">
+          <div className="signature-half">
+            <div><b>For {invoice.companyName}</b></div>
+            <div className="authorized">Authorized Signatory</div>
+          </div>
+          <div className="declaration-half">
+            <b>Declaration</b>
+            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
+          </div>
         </div>
       </div>
     </div>
