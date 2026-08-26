@@ -15,7 +15,7 @@ const defaultInvoice = {
   email: "",
   gstin: "33AWAPS4955J1Z8",
   partyName: "JG HOSIERY PVT LTD",
-  partyAddress: "5 JG GARDENROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
+  partyAddress: "5 JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
   partyGstin: "33AAACJ9361N1Z3",
   taxMode: "cgstsgst",
   gstRate: 5,
