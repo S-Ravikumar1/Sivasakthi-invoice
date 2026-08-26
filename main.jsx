@@ -9,16 +9,16 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVA SAKTHI HOSIERY",
-  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
-  phone: "Phone Number",
-  email: "Email",
-  gstin: "33ABCD1234A1Z5",
+  companyName: "SIVASAKTHI HOSIERY",
+  companyAddress: "19 A-2 B.S.Sundaram street, Avinashi, Tiruppur, 641654",
+  phone: "9843356611",
+  email: " ",
+  gstin: "33AWAPS4955J1Z8",
   partyName: "CUSTOMER NAME",
   partyAddress: "Customer Address, City, State, PIN",
   partyGstin: "",
   taxMode: "cgstsgst",
-  gstRate: 18,
+  gstRate: 5,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
