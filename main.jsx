@@ -9,7 +9,7 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVA SAKTHI HOSIERY",
+  companyName: "SIVASAKTHI HOSIERY",
   companyAddress: "19 A-2, B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR,641654",
   phone: "9843356611",
   email: "",
