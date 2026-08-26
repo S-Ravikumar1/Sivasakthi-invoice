@@ -14,11 +14,11 @@ const defaultInvoice = {
   phone: "9843356611",
   email: "",
   gstin: "33AWAPS4955J1Z8",
-  partyName: "CUSTOMER NAME",
-  partyAddress: "Customer Address, City, State, PIN",
-  partyGstin: "",
+  partyName: "JG HOSIERYPVTLTD",
+  partyAddress: "5 JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
+  partyGstin: "33AAACJ9361N1Z3",
   taxMode: "cgstsgst",
-  gstRate: 18,
+  gstRate: 5,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
