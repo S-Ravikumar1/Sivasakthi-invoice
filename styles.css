@@ -54,3 +54,8 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .invoice-bottom-sections .for-company{grid-column:2;grid-row:1}
 .declaration-left{order:1}
 .company-right{order:2}
+
+/* PDF bottom sections: declaration on the left, company/signatory on the right */
+.declaration-signature .declaration-half{border-right:1px solid #444}
+.declaration-signature .signature-half{border-right:0}
+.declaration-signature .signature-half .authorized{left:8px;bottom:15px}

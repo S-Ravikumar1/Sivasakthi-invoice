@@ -9,16 +9,16 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2, B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
-  phone: "9843356611",
-  email: "",
-  gstin: "33AWAPS4955J1Z8",
-  partyName: "JG HOSIERYPVTLTD",
-  partyAddress: "5 JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
-  partyGstin: "33AAACJ9361N1Z3",
+  companyName: "SIVA SAKTHI HOSIERY",
+  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
+  phone: "Phone Number",
+  email: "Email",
+  gstin: "33ABCD1234A1Z5",
+  partyName: "CUSTOMER NAME",
+  partyAddress: "Customer Address, City, State, PIN",
+  partyGstin: "",
   taxMode: "cgstsgst",
-  gstRate: 5,
+  gstRate: 18,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
@@ -469,13 +469,13 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         </div>
 
         <div className="declaration-signature">
-          <div className="signature-half">
-            <div><b>For {invoice.companyName}</b></div>
-            <div className="authorized">Authorized Signatory</div>
-          </div>
           <div className="declaration-half">
             <b>Declaration</b>
             <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
+          </div>
+          <div className="signature-half">
+            <div><b>For {invoice.companyName}</b></div>
+            <div className="authorized">Authorized Signatory</div>
           </div>
         </div>
       </div>
