@@ -20,8 +20,8 @@ const defaultInvoice = {
   taxMode: "cgstsgst",
   gstRate: 5,
   products: [
-    { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
-      items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
+    { id: crypto.randomUUID(), name: "", hsn: "", rate: ,
+      items: [{ id: crypto.randomUUID(), dcNo: "", pcs:  }] }
   ]
 };
 
