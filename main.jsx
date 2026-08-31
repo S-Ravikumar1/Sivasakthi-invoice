@@ -123,6 +123,7 @@ function App() {
   const exactTotal = subtotal + gst;
   const grandTotal = Math.round(exactTotal);
   const roundOff = grandTotal - exactTotal;
+  const taxRate = Number(invoice.gstRate || 0);
   const update = (key, value) => setInvoice(prev => ({ ...prev, [key]: value }));
   const updateProduct = (id, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === id ? { ...p, [key]: value } : p) }));
   const addProduct = () => setInvoice(prev => ({ ...prev, products: [...(prev.products || []), { id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }));
@@ -190,6 +191,7 @@ function App() {
 
   const downloadPdf = async () => {
     try {
+      console.log("PDF DOWNLOAD: sending request", invoice.invoiceNo);
       const response = await fetch("/api/render-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
