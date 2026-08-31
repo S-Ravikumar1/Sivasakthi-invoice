@@ -74,7 +74,7 @@ This application stores invoice data in PostgreSQL but does not submit GST invoi
 
 
 ## Server-side PDF with Render
-The browser now sends PDF data to `/api/render-pdf`. Vercel proxies this request to a Render Web Service. Set `RENDER_PDF_URL` in Vercel to the Render service URL plus `/render`. Deploy the same repository as a Render Web Service with Build Command `npm install` and Start Command `npm run render-pdf`. Render web services provide an `onrender.com` URL and must listen on `0.0.0.0`; this project uses the `PORT` environment variable.
+The browser now sends PDF data to `/api/render-pdf`. Vercel proxies this request to a Render Web Service. Set `RENDER_PDF_URL` in Vercel to the Render service URL plus `/render`. Deploy the same repository as a Render Web Service with Build Command `npm install` and Start Command `npm run render-pdf`. The `render-pdf` start script explicitly installs the Puppeteer Chrome browser before starting the service, so it works even when npm has skipped Puppeteer install scripts. Render web services provide an `onrender.com` URL and must listen on `0.0.0.0`; this project uses the `PORT` environment variable.
 
 
 ### PDF service security

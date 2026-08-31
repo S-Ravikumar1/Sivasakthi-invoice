@@ -10,7 +10,11 @@ app.use((req, _res, next) => {
   next();
 });
 let browserPromise;
-const getBrowser = () => browserPromise ||= puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] });
+const getBrowser = () => browserPromise ||= puppeteer.launch({
+  headless: "new",
+  ...(process.env.PUPPETEER_EXECUTABLE_PATH ? { executablePath: process.env.PUPPETEER_EXECUTABLE_PATH } : {}),
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+});
 
 const esc = v => String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const money = v => Number(v||0).toLocaleString("en-IN", { style:"currency", currency:"INR", minimumFractionDigits:2 });
