@@ -197,7 +197,12 @@ function App() {
       });
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || "PDF service failed");
+        let message = text || "PDF service failed";
+        try {
+          const data = JSON.parse(text);
+          message = data.detail || data.error || message;
+        } catch {}
+        throw new Error(message);
       }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -209,8 +214,8 @@ function App() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error(error);
-      alert("PDF generation failed. Please check the Render PDF service.");
+      console.error("PDF generation failed:", error);
+      alert(`PDF generation failed: ${error?.message || "Please check the Render PDF service."}`);
     }
   };
   const printInvoice = () => window.print();
