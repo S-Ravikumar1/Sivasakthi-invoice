@@ -469,13 +469,13 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         </div>
 
         <div className="declaration-signature">
-          <div className="signature-half">
-            <div><b>For {invoice.companyName}</b></div>
-            <div className="authorized">Authorized Signatory</div>
-          </div>
           <div className="declaration-half">
             <b>Declaration</b>
             <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
+          </div>
+          <div className="signature-half">
+            <div><b>For {invoice.companyName}</b></div>
+            <div className="authorized">Authorized Signatory</div>
           </div>
         </div>
       </div>
