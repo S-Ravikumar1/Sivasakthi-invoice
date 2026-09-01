@@ -37,7 +37,7 @@ function rateDisplay(value) {
   if (raw === "") return "";
   const num = Number(raw);
   if (!Number.isFinite(num)) return raw;
-  return `₹${num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 })}`;
+  return num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 });
 }
 
 function numberToWordsIndian(number) {
@@ -190,6 +190,7 @@ function App() {
 
   const downloadPdf = async () => {
     try {
+      const taxRate = Number(invoice.gstRate || 0);
       const response = await fetch("/api/render-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,12 +198,7 @@ function App() {
       });
       if (!response.ok) {
         const text = await response.text();
-        let detail = text || "PDF service failed";
-        try {
-          const parsed = JSON.parse(text);
-          if (parsed?.error) detail = parsed.error;
-        } catch {}
-        throw new Error(detail);
+        throw new Error(text || "PDF service failed");
       }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -214,8 +210,8 @@ function App() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("PDF generation error:", error);
-      alert(`PDF generation failed: ${error?.message || "Unknown error"}`);
+      console.error(error);
+      alert("PDF generation failed. Please check the Render PDF service.");
     }
   };
   const printInvoice = () => window.print();
@@ -428,7 +424,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Description</th>
+              <th className="desc">Particular (Description & Specification)</th>
               <th>HSN Code</th>
               <th>Qty</th>
               <th>Rate</th>
@@ -474,13 +470,13 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         </div>
 
         <div className="declaration-signature">
-          <div className="declaration-half">
-            <b>Declaration</b>
-            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
-          </div>
           <div className="signature-half">
             <div><b>For {invoice.companyName}</b></div>
             <div className="authorized">Authorized Signatory</div>
+          </div>
+          <div className="declaration-half">
+            <b>Declaration</b>
+            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
           </div>
         </div>
       </div>

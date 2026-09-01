@@ -43,83 +43,29 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 
 .invoice-meta strong{font-size:16px;font-weight:800}.invoice-detail-input{font-size:16px!important;font-weight:800!important}.invoice-detail-input:read-only{background:#f7f7f7}
 
-.invoice-summary-row{display:grid;grid-template-columns:1fr 318px;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:12px}.invoice-summary-row .words b{display:block;margin-bottom:5px}
-.invoice-summary-row .words > div{font-size:12px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:1fr 1fr;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444;text-align:right}.signature-half .authorized{left:auto;right:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:17px;font-size:12px}
+.invoice-summary-row{display:grid;grid-template-columns:1fr 318px;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:9.5px}.invoice-summary-row .words b{display:block;margin-bottom:5px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:1fr 1fr;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444}.signature-half .authorized{left:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:15px;font-size:9.5px}
 @media print{.invoice-summary-row{break-inside:avoid}.declaration-signature{break-inside:avoid}}
 
-/* A4 bottom layout: amount-in-words fixed directly above declaration/signature */
-.invoice-frame{
-  display:flex;
-  flex-direction:column;
-  position:relative;
-  overflow:hidden;
+/* Amount-in-words and five equal right-side total rows */
+.invoice-summary-row .words,
+.summary .words {
+  height: 130px !important;
+  min-height: 130px !important;
+  box-sizing: border-box;
 }
-.bill-table{
-  flex:1 1 auto;
-  height:0;
-  min-height:0;
+.invoice-summary-row .totals {
+  height: 130px !important;
+  min-height: 130px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box;
 }
-.bill-table .empty-space td{
-  height:auto;
-}
-.invoice-summary-row{
-  flex:0 0 100px;
-  height:100px !important;
-  min-height:100px !important;
-  display:grid;
-  grid-template-columns:1fr 318px;
-  border-top:2px solid #444;
-}
-.invoice-summary-row .words{
-  height:100px !important;
-  min-height:100px !important;
-  margin:0;
-  border:0;
-  border-right:2px solid #444;
-  padding:10px;
-  font-size:9.5px;
-  box-sizing:border-box;
-}
-.invoice-summary-row .words b{display:block;margin-bottom:5px}
-.invoice-summary-row .words > div{font-size:12px}
-.invoice-summary-row .totals{
-  height:100px !important;
-  min-height:100px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  font-size:10px;
-  box-sizing:border-box;
-}
-.invoice-summary-row .totals .total-row{
-  height:20px !important;
-  min-height:20px !important;
-  flex:1 1 20% !important;
-  box-sizing:border-box;
-  display:flex;
-  align-items:center;
-  padding:3px 8px;
-  border-bottom:1px solid #aaa;
-}
-.invoice-summary-row .totals .grand{font-size:12px;font-weight:800}
-.declaration-signature{
-  flex:0 0 100px;
-  height:100px !important;
-  min-height:100px !important;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  border-top:2px solid #444;
-}
-.declaration-half,.signature-half{
-  position:relative;
-  padding:12px 8px;
-  font-size:10px;
-  box-sizing:border-box;
-}
-.declaration-half{border-right:2px solid #444}
-.signature-half{border-right:0}
-.signature-half .authorized{left:auto;right:8px;bottom:15px}
-.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}
-.declaration-half div{line-height:17px;font-size:12px}
-@media print{
-  .invoice-summary-row,.declaration-signature{break-inside:avoid}
+.invoice-summary-row .totals .total-row,
+.summary .totals .tr {
+  height: 26px !important;
+  min-height: 26px !important;
+  flex: 1 1 20% !important;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
