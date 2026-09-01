@@ -51,3 +51,12 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .invoice-summary-row .words{height:130px;min-height:130px;box-sizing:border-box}
 .invoice-summary-row .totals{height:130px;min-height:130px;display:grid;grid-template-rows:repeat(5,1fr);box-sizing:border-box}
 .invoice-summary-row .totals .total-row{height:auto;min-height:0;box-sizing:border-box;display:flex;align-items:center}
+
+/* Fixed A4 bottom layout: 130px totals/words and 130px declaration/signature */
+.invoice-paper,.invoice-frame{height:297mm;min-height:297mm;box-sizing:border-box}
+.invoice-frame{display:flex;flex-direction:column}
+.invoice-summary-row{height:130px!important;min-height:130px!important;flex:none}
+.invoice-summary-row .words{height:130px!important;min-height:130px!important}
+.invoice-summary-row .totals{height:130px!important;min-height:130px!important;display:grid!important;grid-template-rows:repeat(5,1fr)!important}
+.invoice-summary-row .totals .total-row{height:auto!important;min-height:0!important}
+.declaration-signature,.decl{height:130px!important;min-height:130px!important;flex:none}

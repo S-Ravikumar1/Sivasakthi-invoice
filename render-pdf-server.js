@@ -32,3 +32,12 @@ const port=process.env.PORT||10000;app.listen(port,"0.0.0.0",()=>console.log(`PD
 .words{height:130px;min-height:130px;box-sizing:border-box}
 .totals{height:130px;min-height:130px;display:grid;grid-template-rows:repeat(5,1fr);box-sizing:border-box}
 .totals .tr{height:auto;min-height:0;box-sizing:border-box;display:flex;align-items:center}
+
+/* Fixed A4 bottom layout: 130px totals/words and 130px declaration/signature */
+.paper,.frame{height:297mm;min-height:297mm;box-sizing:border-box}
+.frame{display:flex;flex-direction:column}
+.summary{height:130px!important;min-height:130px!important;flex:none}
+.summary .words{height:130px!important;min-height:130px!important}
+.summary .totals{height:130px!important;min-height:130px!important;display:grid!important;grid-template-rows:repeat(5,1fr)!important}
+.summary .totals .tr{height:auto!important;min-height:0!important}
+.decl{height:130px!important;min-height:130px!important;flex:none}
