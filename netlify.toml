@@ -5,10 +5,19 @@
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["node_modules/@sparticuz/chromium/bin/**"]
+  external_node_modules = ["@sparticuz/chromium"]
 
 [[redirects]]
   from = "/api/render-pdf"
   to = "/.netlify/functions/render-pdf"
   status = 200
-  force = true
+
+[[redirects]]
+  from = "/api/invoices"
+  to = "/.netlify/functions/invoices"
+  status = 200
+
+[[redirects]]
+  from = "/api/next-invoice-number"
+  to = "/.netlify/functions/next-invoice-number"
+  status = 200
