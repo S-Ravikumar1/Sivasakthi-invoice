@@ -123,7 +123,6 @@ function App() {
   const exactTotal = subtotal + gst;
   const grandTotal = Math.round(exactTotal);
   const roundOff = grandTotal - exactTotal;
-  const taxRate = Number(invoice.gstRate || 0);
   const update = (key, value) => setInvoice(prev => ({ ...prev, [key]: value }));
   const updateProduct = (id, key, value) => setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === id ? { ...p, [key]: value } : p) }));
   const addProduct = () => setInvoice(prev => ({ ...prev, products: [...(prev.products || []), { id: crypto.randomUUID(), name: "", hsn: "", rate: 0, items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }] }));
@@ -191,7 +190,6 @@ function App() {
 
   const downloadPdf = async () => {
     try {
-      console.log("PDF DOWNLOAD: sending request", invoice.invoiceNo);
       const response = await fetch("/api/render-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -199,12 +197,7 @@ function App() {
       });
       if (!response.ok) {
         const text = await response.text();
-        let message = text || "PDF service failed";
-        try {
-          const data = JSON.parse(text);
-          message = data.detail || data.error || message;
-        } catch {}
-        throw new Error(message);
+        throw new Error(text || "PDF service failed");
       }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -216,8 +209,8 @@ function App() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("PDF generation failed:", error);
-      alert(`PDF generation failed: ${error?.message || "Please check the Render PDF service."}`);
+      console.error(error);
+      alert("PDF generation failed. Please check the Render PDF service.");
     }
   };
   const printInvoice = () => window.print();
@@ -427,10 +420,11 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           <div>GSTIN: {invoice.partyGstin || "—"}</div>
         </div>
 
+        <div className="invoice-items-area">
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Particular (Description & Specification)</th>
+              <th className="desc">Description</th>
               <th>HSN Code</th>
               <th>Qty</th>
               <th>Rate</th>
@@ -458,6 +452,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
             <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
+        </div>
 
         <div className="invoice-summary-row">
           <div className="words">
@@ -478,7 +473,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         <div className="declaration-signature">
           <div className="declaration-half">
             <b>Declaration</b>
-            <div>I declare that this invoice shows the actual price of the jobwork and all the Description are true and correct to the best of my knowledge.</div>
+            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
           </div>
           <div className="signature-half">
             <div><b>For {invoice.companyName}</b></div>
