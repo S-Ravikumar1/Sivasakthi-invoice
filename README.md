@@ -73,55 +73,9 @@ For local API/database testing, set `DATABASE_URL` in the environment before sta
 This application stores invoice data in PostgreSQL but does not submit GST invoices to the government portal or generate IRNs/e-invoices. Any required GST/e-invoicing compliance integration should be added separately according to the business's requirements.
 
 
-## PDF generation with Netlify
+## Server-side PDF with Render
+The browser now sends PDF data to `/api/render-pdf`. Vercel proxies this request to a Render Web Service. Set `RENDER_PDF_URL` in Vercel to the Render service URL plus `/render`. Deploy the same repository as a Render Web Service with Build Command `npm install` and Start Command `npm run render-pdf`. Render web services provide an `onrender.com` URL and must listen on `0.0.0.0`; this project uses the `PORT` environment variable.
 
-PDF generation is now handled by a Netlify Function using `@sparticuz/chromium` and `puppeteer-core`. This removes the dependency on the Render PDF web service. Netlify's official Functions model supports web-request handlers, and the Chromium setup follows the serverless Chromium approach used for Netlify/AWS-style runtimes.
 
-Deploy this repository as a separate Netlify site for the PDF service, or deploy the whole repository to Netlify if you also want the frontend there. The function endpoint is:
-
-```text
-/.netlify/functions/render-pdf
-```
-
-The repository includes a redirect so `/api/render-pdf` also reaches the Netlify Function.
-
-### Vercel frontend + Netlify PDF service
-
-If the invoice website remains on Vercel, set this Vercel environment variable to the Netlify site URL:
-
-```text
-VITE_PDF_API_URL=https://YOUR-NETLIFY-SITE.netlify.app/.netlify/functions/render-pdf
-```
-
-Then redeploy the Vercel frontend. The browser will send the invoice data directly to Netlify for PDF generation.
-
-Optional Netlify environment variables:
-
-```text
-PDF_ALLOWED_ORIGIN=https://YOUR-VERCEL-SITE.vercel.app
-PDF_API_TOKEN=optional-token
-```
-
-If `PDF_ALLOWED_ORIGIN` is not set, the function allows all origins. `PDF_API_TOKEN` is only useful when the caller can keep the token secret; do not put a secret token in `VITE_*` frontend variables.
-
-### Netlify deployment
-
-Build command:
-
-```text
-npm run build
-```
-
-Publish directory:
-
-```text
-dist
-```
-
-Functions directory:
-
-```text
-netlify/functions
-```
-
-Use Node.js 22 or newer for the current serverless Chromium dependency.
+### PDF service security
+Set the same random `PDF_API_TOKEN` environment variable in both Vercel and Render. The Vercel proxy sends it to Render so the public PDF service cannot be used without the token.

@@ -18,7 +18,7 @@ const defaultInvoice = {
   partyAddress: "Customer Address, City, State, PIN",
   partyGstin: "",
   taxMode: "cgstsgst",
-  gstRate: 18,
+  gstRate: 5,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
@@ -190,8 +190,7 @@ function App() {
   const downloadPdf = async () => {
     try {
       const taxRate = Number(invoice.gstRate || 0);
-      const pdfApiUrl = import.meta.env.VITE_PDF_API_URL || "/api/render-pdf";
-      const response = await fetch(pdfApiUrl, {
+      const response = await fetch("/api/render-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ invoice, products: productTotals, subtotal, gst, cgst, sgst, igst, roundOff, grandTotal, taxRate })
@@ -211,7 +210,7 @@ function App() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      alert("PDF generation failed. Please check the Netlify PDF service.");
+      alert("PDF generation failed. Please check the Render PDF service.");
     }
   };
   const printInvoice = () => window.print();
@@ -424,7 +423,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Particular (Description & Specification)</th>
+              <th className="desc">Description</th>
               <th>HSN Code</th>
               <th>Qty</th>
               <th>Rate</th>

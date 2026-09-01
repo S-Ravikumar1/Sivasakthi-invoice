@@ -69,3 +69,17 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   display: flex;
   align-items: center;
 }
+
+/* Final A4 bottom sections */
+.invoice-paper{height:297mm!important;min-height:297mm!important;overflow:hidden!important}
+.invoice-frame{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+.invoice-summary-row{height:100px!important;min-height:100px!important;flex:none!important;margin-top:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) 318px!important}
+.invoice-summary-row .words{height:100px!important;min-height:100px!important;font-size:12px!important;box-sizing:border-box!important}
+.invoice-summary-row .words>div{font-size:12px!important;line-height:16px!important}
+.invoice-summary-row .totals{height:100px!important;min-height:100px!important;display:grid!important;grid-template-rows:repeat(5,1fr)!important}
+.invoice-summary-row .totals>*{height:auto!important;min-height:0!important}
+.declaration-signature{height:100px!important;min-height:100px!important;flex:none!important;display:grid!important;grid-template-columns:1fr 1fr!important}
+.declaration-signature .declaration-half{grid-column:1!important;grid-row:1!important;border-right:1px solid #444!important}
+.declaration-signature .signature-half{grid-column:2!important;grid-row:1!important;border-right:0!important;text-align:right!important}
+.declaration-half div,.declaration-half .decltext{font-size:12px!important;line-height:16px!important}
+.signature-half .authorized{left:auto!important;right:8px!important;bottom:15px!important;text-align:right!important}
