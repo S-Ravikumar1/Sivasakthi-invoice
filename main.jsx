@@ -209,8 +209,8 @@ function App() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error(error);
-      alert("PDF generation failed. Please check the Netlify PDF service.");
+  console.error("PDF generation error:", error);
+  alert(`PDF generation failed: ${error.message || error}`);
     }
   };
   const printInvoice = () => window.print();
