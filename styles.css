@@ -43,7 +43,7 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 
 .invoice-meta strong{font-size:16px;font-weight:800}.invoice-detail-input{font-size:16px!important;font-weight:800!important}.invoice-detail-input:read-only{background:#f7f7f7}
 
-.invoice-summary-row{display:grid;grid-template-columns:1fr 318px;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:9.5px}.invoice-summary-row .words b{display:block;margin-bottom:5px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:1fr 1fr;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444}.signature-half .authorized{left:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:15px;font-size:9.5px}
+.invoice-summary-row{display:grid;grid-template-columns:1fr 318px;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:12px}.invoice-summary-row .words b{display:block;margin-bottom:5px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:1fr 1fr;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444}.signature-half .authorized{left:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:17px;font-size:12px}
 @media print{.invoice-summary-row{break-inside:avoid}.declaration-signature{break-inside:avoid}}
 
 /* A4 bottom layout: amount-in-words fixed directly above declaration/signature */
@@ -117,7 +117,7 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .signature-half{border-right:0}
 .signature-half .authorized{left:8px;bottom:15px}
 .declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}
-.declaration-half div{line-height:15px;font-size:9.5px}
+.declaration-half div{line-height:17px;font-size:12px}
 @media print{
   .invoice-summary-row,.declaration-signature{break-inside:avoid}
 }
