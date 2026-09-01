@@ -423,7 +423,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Particular (Description & Specification)</th>
+              <th className="desc">Description</th>
               <th>HSN Code</th>
               <th>Qty</th>
               <th>Rate</th>
