@@ -27,9 +27,8 @@ const defaultInvoice = {
 
 function money(value) {
   return Number(value || 0).toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
 }
 function rateDisplay(value) {
@@ -191,7 +190,8 @@ function App() {
   const downloadPdf = async () => {
     try {
       const taxRate = Number(invoice.gstRate || 0);
-      const response = await fetch("/api/render-pdf", {
+      const pdfApiUrl = import.meta.env.VITE_PDF_API_URL || "/api/render-pdf";
+      const response = await fetch(pdfApiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ invoice, products: productTotals, subtotal, gst, cgst, sgst, igst, roundOff, grandTotal, taxRate })
@@ -211,7 +211,7 @@ function App() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      alert("PDF generation failed. Please check the Render PDF service.");
+      alert("PDF generation failed. Please check the Netlify PDF service.");
     }
   };
   const printInvoice = () => window.print();
