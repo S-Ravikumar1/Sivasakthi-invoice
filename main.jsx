@@ -420,11 +420,10 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           <div>GSTIN: {invoice.partyGstin || "—"}</div>
         </div>
 
-        <div className="invoice-items-area">
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Description</th>
+              <th className="desc">Particular (Description & Specification)</th>
               <th>HSN Code</th>
               <th>Qty</th>
               <th>Rate</th>
@@ -444,7 +443,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
       <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
     </div>
   ))}
-  <div className="pdf-product-total-row"><span></span><span>Total PCS: {totalQty}</span></div>
+  <div className="pdf-product-total">Total PCS: {totalQty}</div>
 </td>
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
@@ -452,7 +451,6 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
             <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
-        </div>
 
         <div className="invoice-summary-row">
           <div className="words">
@@ -471,13 +469,13 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         </div>
 
         <div className="declaration-signature">
-          <div className="declaration-half">
-            <b>Declaration</b>
-            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
-          </div>
           <div className="signature-half">
             <div><b>For {invoice.companyName}</b></div>
             <div className="authorized">Authorized Signatory</div>
+          </div>
+          <div className="declaration-half">
+            <b>Declaration</b>
+            <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
           </div>
         </div>
       </div>
