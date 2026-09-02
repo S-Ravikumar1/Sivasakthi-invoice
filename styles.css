@@ -96,4 +96,4 @@ body, button, input, textarea, select { font-family: Arial, Helvetica, sans-seri
 .invoice-summary-row .words { font-size: 12px !important; }
 .invoice-summary-row .words > div { font-size: 12px !important; line-height: 16px !important; font-weight: 700 !important; }
 .declaration-half { font-size: 12px !important; }
-.declaration-half > div { font-size: 12px !important; line-height: 16px !important; font-weight: 400 !important; }
+.declaration-half > div { font-size: 12px !important; line-height: 16px !important; font-weight: 700 !important; }
