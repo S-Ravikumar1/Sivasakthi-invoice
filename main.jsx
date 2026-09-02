@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import {
   Plus, Trash2, Download, Printer, Save, RotateCcw, FileText,
   Building2, UserRound, Settings2, Eye, X, Search
@@ -188,29 +190,26 @@ function App() {
   };
 
   const downloadPdf = async () => {
+    let holder = null;
     try {
-      const taxRate = Number(invoice.gstRate || 0);
-      const response = await fetch("/.netlify/functions/render-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invoice, products: productTotals, subtotal, gst, cgst, sgst, igst, roundOff, grandTotal, taxRate })
-      });
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "PDF service failed");
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${invoice.invoiceNo || "tax-invoice"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      if (!printRef.current) throw new Error("Invoice preview is not ready");
+      const source = printRef.current;
+      const clone = source.cloneNode(true);
+      holder = document.createElement("div");
+      Object.assign(holder.style, { position:"fixed", left:"0", top:"0", width:"794px", height:"1123px", overflow:"hidden", opacity:"0", pointerEvents:"none", zIndex:"-1", background:"#fff" });
+      Object.assign(clone.style, { width:"794px", height:"1123px", minHeight:"1123px", margin:"0", transform:"none", overflow:"hidden", background:"#fff" });
+      holder.appendChild(clone);
+      document.body.appendChild(holder);
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const canvas = await html2canvas(clone, { scale:2, useCORS:true, backgroundColor:"#fff", width:794, height:1123, windowWidth:794, windowHeight:1123, scrollX:0, scrollY:0 });
+      const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4", compress:true });
+      pdf.addImage(canvas.toDataURL("image/jpeg",0.98), "JPEG", 0, 0, 210, 297);
+      pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
     } catch (error) {
-  console.error("PDF generation error:", error);
-  alert(`PDF generation failed: ${error.message || error}`);
+      console.error("Browser PDF generation failed:", error);
+      alert(`PDF generation failed: ${error?.message || "Unknown error"}`);
+    } finally {
+      if (holder) holder.remove();
     }
   };
   const printInvoice = () => window.print();
@@ -448,7 +447,6 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
             })}
-            <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
 
