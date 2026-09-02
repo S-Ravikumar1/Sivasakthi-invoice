@@ -442,7 +442,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
       <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
     </div>
   ))}
-  <div className="pdf-product-total">Total PCS: {totalQty}</div>
+  <div className="pdf-product-total"><span></span><span>{totalQty}</span></div>
 </td>
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
