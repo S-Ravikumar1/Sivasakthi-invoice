@@ -72,7 +72,7 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 
 /* Final A4 bottom sections */
 .invoice-paper{height:297mm!important;min-height:297mm!important;overflow:hidden!important}
-.invoice-frame{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+.invoice-frame{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}
 .invoice-summary-row{height:130px!important;min-height:130px!important;flex:none!important;margin-top:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) 318px!important;box-sizing:border-box!important;overflow:hidden!important}
 .invoice-summary-row .words{height:130px!important;min-height:130px!important;font-size:12px!important;box-sizing:border-box!important;overflow:hidden!important}
 .invoice-summary-row .words>div{font-size:12px!important;line-height:16px!important}
