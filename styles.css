@@ -211,5 +211,9 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .party-name { font-size: 18px !important; font-weight: 800 !important; line-height: 21px !important; }
 .party-address { font-size: 16px !important; font-weight: 400 !important; line-height: 20px !important; }
 
-/* Party GSTNO: 16px regular */
-.party-gstno{font-size:16px!important;font-weight:400!important;}
+/* Party GSTIN: same size as party address, regular */
+.party-gstin {
+  font-family: Arial, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}

@@ -409,14 +409,14 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
           <div className="seller-name">{invoice.companyName || "YOUR COMPANY NAME"}</div>
           <div>{invoice.companyAddress}</div>
           <div>{invoice.phone}{invoice.phone && invoice.email ? " • " : ""}{invoice.email}</div>
-          <div>GSTIN: {invoice.gstin}</div>
+          <div className="party-gstin">GSTIN: {invoice.gstin}</div>
         </div>
 
         <div className="party-block">
           <b>PARTY'S NAME:</b>
           <div className="party-name">{invoice.partyName}</div>
           <div className="party-address">{invoice.partyAddress}</div>
-          <div>GSTIN: {invoice.partyGstin || "—"}</div>
+          <div className="party-gstin">GSTIN: {invoice.partyGstin || "—"}</div>
         </div>
 
         <table className="bill-table">
