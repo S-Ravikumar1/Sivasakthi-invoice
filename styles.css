@@ -210,3 +210,6 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 /* Final party-name adjustment: name only, address unchanged */
 .party-name { font-size: 18px !important; font-weight: 800 !important; line-height: 21px !important; }
 .party-address { font-size: 16px !important; font-weight: 400 !important; line-height: 20px !important; }
+
+/* Party GSTNO: 16px regular */
+.party-gstno{font-size:16px!important;font-weight:400!important;}
