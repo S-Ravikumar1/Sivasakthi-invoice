@@ -14,7 +14,7 @@ const defaultInvoice = {
   companyName: "SIVASAKTHI HOSIERY",
   companyAddress: "19 A-2 B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
   phone: "9843356611",
-  email: " ",
+  email: "",
   gstin: "33AWAPS4955J1Z8",
   partyName: "JG HOSIERYPVTLTD",
   partyAddress: "5, JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
