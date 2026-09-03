@@ -11,14 +11,14 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2, B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
-  phone: "9500567453",
-  email: " ",
-  gstin: "33AWAPS4955J1Z8",
-  partyName: "JG HOSIERY PVT LTD",
-  partyAddress: "5, JG GARDENROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
-  partyGstin: "33AAACJ9361N1Z3",
+  companyName: "SIVA SAKTHI HOSIERY",
+  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
+  phone: "Phone Number",
+  email: "Email",
+  gstin: "33ABCD1234A1Z5",
+  partyName: "CUSTOMER NAME",
+  partyAddress: "Customer Address, City, State, PIN",
+  partyGstin: "",
   taxMode: "cgstsgst",
   gstRate: 5,
   products: [
@@ -424,8 +424,8 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
             <tr>
               <th className="desc">Description</th>
               <th>HSN Code</th>
-              <th>Qty</th>
-              <th>Rate</th>
+              <th>Qty in pcs</th>
+              <th>Rate per pcs</th>
               <th>Amount</th>
             </tr>
           </thead>
@@ -442,7 +442,7 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
       <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
     </div>
   ))}
-  <div className="pdf-product-total"><span></span><span>{totalQty}</span></div>
+  <div className="pdf-product-total"><span>Total PCS:</span> <strong>{totalQty}</strong></div>
 </td>
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
