@@ -228,3 +228,6 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   font-weight: 400 !important;
   line-height: 19px !important;
 }
+
+/* Company phone number */
+.seller-phone { font-size: 15px !important; font-weight: 400 !important; }
