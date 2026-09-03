@@ -407,9 +407,9 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
 
         <div className="seller-block">
           <div className="seller-name">{invoice.companyName || "YOUR COMPANY NAME"}</div>
-          <div>{invoice.companyAddress}</div>
+          <div className="seller-address">{invoice.companyAddress}</div>
           <div>{invoice.phone}{invoice.phone && invoice.email ? " • " : ""}{invoice.email}</div>
-          <div className="party-gstin">GSTIN: {invoice.gstin}</div>
+          <div className="seller-gstin">GSTIN: {invoice.gstin}</div>
         </div>
 
         <div className="party-block">
