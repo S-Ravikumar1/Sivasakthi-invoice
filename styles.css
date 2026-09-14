@@ -231,3 +231,14 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 
 /* Company phone number */
 .seller-phone { font-size: 15px !important; font-weight: 400 !important; }
+
+
+/* Invoice table: outer border and ALL internal lines use the same thickness */
+.bill-table {
+  border: 2px solid #111 !important;
+  border-collapse: collapse !important;
+}
+.bill-table th,
+.bill-table td {
+  border: 2px solid #111 !important;
+}
