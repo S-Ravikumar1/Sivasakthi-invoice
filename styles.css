@@ -232,13 +232,30 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 /* Company phone number */
 .seller-phone { font-size: 15px !important; font-weight: 400 !important; }
 
-
-/* Invoice table: outer border and ALL internal lines use the same thickness */
-.bill-table {
-  border: 2px solid #111 !important;
-  border-collapse: collapse !important;
+/* Final PDF border thickness: every visible invoice line is 1.5px */
+.invoice-paper .invoice-frame { border: 1.5px solid #111 !important; }
+.invoice-paper .invoice-top { border-bottom: 1.5px solid #111 !important; }
+.invoice-paper .invoice-meta { border-left: 1.5px solid #111 !important; }
+.invoice-paper .seller-block { border-bottom: 1.5px solid #111 !important; }
+.invoice-paper .party-block { border-bottom: 1.5px solid #111 !important; }
+.invoice-paper .bill-table { border: 1.5px solid #111 !important; }
+.invoice-paper .bill-table th,
+.invoice-paper .bill-table td {
+  border-left: 1.5px solid #111 !important;
+  border-right: 1.5px solid #111 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
 }
-.bill-table th,
-.bill-table td {
-  border: 2px solid #111 !important;
+.invoice-paper .bill-table th {
+  border-top: 1.5px solid #111 !important;
+  border-bottom: 1.5px solid #111 !important;
 }
+.invoice-paper .bill-table tbody tr:last-child td {
+  border-bottom: 1.5px solid #111 !important;
+}
+.invoice-paper .invoice-summary-row { border-top: 0 !important; }
+.invoice-paper .invoice-summary-row .words { border-right: 1.5px solid #111 !important; }
+.invoice-paper .total-row { border-bottom: 1.5px solid #111 !important; }
+.invoice-paper .declaration-signature { border-top: 1.5px solid #111 !important; }
+.invoice-paper .declaration-half { border-right: 1.5px solid #111 !important; }
+.invoice-paper .signature-half { border-right: 0 !important; }
