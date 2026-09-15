@@ -369,3 +369,20 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .invoice-paper .declaration-signature {
   border-top: 1.5px solid #111 !important;
 }
+
+/* FINAL OUTER VERTICAL LINE FIX:
+   The invoice frame already supplies the left and right outer borders.
+   Remove the duplicate bill-table outer vertical borders so only one line
+   remains at the left edge and at the right edge of the Amount column. */
+.invoice-paper .bill-table {
+  border-left: 0 !important;
+  border-right: 0 !important;
+}
+.invoice-paper .bill-table th:first-child,
+.invoice-paper .bill-table td:first-child {
+  border-left: 0 !important;
+}
+.invoice-paper .bill-table th:last-child,
+.invoice-paper .bill-table td:last-child {
+  border-right: 0 !important;
+}
