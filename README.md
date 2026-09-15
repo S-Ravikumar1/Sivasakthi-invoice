@@ -11,7 +11,7 @@ A Vite + React billing website with PostgreSQL storage, editable invoice history
   - `10` → `10a`
   - next new `10` → old `10a` becomes `10b`, old `10` becomes `10a`
   - next new `10` → `10a` → `10b`, `10b` → `10c`
-- Existing saved invoices are updated in place when edited.
+- Saving an edited saved invoice creates a new current version: 10 → 10a, then 10a → 10b, while the newest saved invoice always keeps the base number 10.
 - Invoice number and date are displayed at 16px bold.
 - Party name and address remain 16px.
 - PDF/print invoice is A4.

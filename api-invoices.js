@@ -42,9 +42,8 @@ export default async function handler(req, res) {
     const base = cleanBase(body.invoiceNo);
     if (!base) return send(res, 400, { error: "Invoice number is required" });
 
-    let client;
+    const client = await pool.connect();
     try {
-      client = await pool.connect();
       await client.query("BEGIN");
       const { rows: existing } = await client.query(
         `SELECT id, suffix FROM invoices WHERE base_invoice_no = $1
@@ -69,13 +68,11 @@ export default async function handler(req, res) {
       await client.query("COMMIT");
       return send(res, 201, rows[0]);
     } catch (error) {
-      if (client) {
-        try { await client.query("ROLLBACK"); } catch (rollbackError) { console.error(rollbackError); }
-      }
+      await client.query("ROLLBACK");
       console.error(error);
-      return send(res, 500, { error: error?.message || "Could not save invoice" });
+      return send(res, 500, { error: "Could not save invoice" });
     } finally {
-      if (client) client.release();
+      client.release();
     }
   }
 
