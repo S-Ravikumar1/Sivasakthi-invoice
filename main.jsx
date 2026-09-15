@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import {
   Plus, Trash2, Download, Printer, Save, RotateCcw, FileText,
   Building2, UserRound, Settings2, Eye, X, Search
@@ -20,7 +18,7 @@ const defaultInvoice = {
   partyAddress: "Customer Address, City, State, PIN",
   partyGstin: "",
   taxMode: "cgstsgst",
-  gstRate: 5,
+  gstRate: 18,
   products: [
     { id: crypto.randomUUID(), name: "", hsn: "", rate: 0,
       items: [{ id: crypto.randomUUID(), dcNo: "", pcs: 1 }] }
@@ -29,8 +27,9 @@ const defaultInvoice = {
 
 function money(value) {
   return Number(value || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2
   });
 }
 function rateDisplay(value) {
@@ -38,7 +37,7 @@ function rateDisplay(value) {
   if (raw === "") return "";
   const num = Number(raw);
   if (!Number.isFinite(num)) return raw;
-  return num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 });
+  return `₹${num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 })}`;
 }
 
 function numberToWordsIndian(number) {
@@ -135,11 +134,13 @@ function App() {
     if (!invoice.invoiceNo.trim()) { alert("Enter an invoice number"); return; }
     setSaving(true);
     try {
+      // Every save creates a new version for the same base invoice number.
+      // If this invoice already exists, the API shifts the previous versions
+      // (10 -> 10a -> 10b -> ...) and stores the newly edited invoice as 10.
       const response = await fetch("/api/invoices", {
-        method: invoiceId ? "PUT" : "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: invoiceId,
           invoiceNo: invoice.invoiceNo,
           date: invoice.date,
           data: invoice
@@ -190,26 +191,28 @@ function App() {
   };
 
   const downloadPdf = async () => {
-    let holder = null;
     try {
-      if (!printRef.current) throw new Error("Invoice preview is not ready");
-      const source = printRef.current;
-      const clone = source.cloneNode(true);
-      holder = document.createElement("div");
-      Object.assign(holder.style, { position:"fixed", left:"0", top:"0", width:"794px", height:"1123px", overflow:"hidden", opacity:"0", pointerEvents:"none", zIndex:"-1", background:"#fff" });
-      Object.assign(clone.style, { width:"794px", height:"1123px", minHeight:"1123px", margin:"0", transform:"none", overflow:"hidden", background:"#fff" });
-      holder.appendChild(clone);
-      document.body.appendChild(holder);
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const canvas = await html2canvas(clone, { scale:2, useCORS:true, backgroundColor:"#fff", width:794, height:1123, windowWidth:794, windowHeight:1123, scrollX:0, scrollY:0 });
-      const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4", compress:true });
-      pdf.addImage(canvas.toDataURL("image/jpeg",0.98), "JPEG", 0, 0, 210, 297);
-      pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
+      const response = await fetch("/api/render-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoice, products: productTotals, subtotal, gst, cgst, sgst, igst, roundOff, grandTotal, taxRate })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "PDF service failed");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${invoice.invoiceNo || "tax-invoice"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Browser PDF generation failed:", error);
-      alert(`PDF generation failed: ${error?.message || "Unknown error"}`);
-    } finally {
-      if (holder) holder.remove();
+      console.error(error);
+      alert("PDF generation failed. Please check the Render PDF service.");
     }
   };
   const printInvoice = () => window.print();
@@ -407,25 +410,25 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
 
         <div className="seller-block">
           <div className="seller-name">{invoice.companyName || "YOUR COMPANY NAME"}</div>
-          <div className="seller-address">{invoice.companyAddress}</div>
-          <div className="seller-contact"><span className="seller-phone">{invoice.phone}</span>{invoice.phone && invoice.email ? " • " : ""}<span>{invoice.email}</span></div>
-          <div className="seller-gstin">GSTIN: {invoice.gstin}</div>
+          <div>{invoice.companyAddress}</div>
+          <div>{invoice.phone}{invoice.phone && invoice.email ? " • " : ""}{invoice.email}</div>
+          <div>GSTIN: {invoice.gstin}</div>
         </div>
 
         <div className="party-block">
           <b>PARTY'S NAME:</b>
           <div className="party-name">{invoice.partyName}</div>
           <div className="party-address">{invoice.partyAddress}</div>
-          <div className="party-gstin">GSTIN: {invoice.partyGstin || "—"}</div>
+          <div>GSTIN: {invoice.partyGstin || "—"}</div>
         </div>
 
         <table className="bill-table">
           <thead>
             <tr>
-              <th className="desc">Description</th>
+              <th className="desc">Particular (Description & Specification)</th>
               <th>HSN Code</th>
-              <th>Qty in pcs</th>
-              <th>Rate per pcs</th>
+              <th>Qty</th>
+              <th>Rate</th>
               <th>Amount</th>
             </tr>
           </thead>
@@ -442,11 +445,12 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
       <span>{item.dcNo || "—"}</span><span>{item.pcs || 0}</span>
     </div>
   ))}
-  <div className="pdf-product-total"><span>Total PCS:</span> <strong>{totalQty}</strong></div>
+  <div className="pdf-product-total-row"><span></span><span>Total PCS: {totalQty}</span></div>
 </td>
                 <td>{product.hsn}</td><td className="right">{totalQty || ""}</td><td className="right">{rateDisplay(product.rate)}</td><td className="right">{money(amount)}</td>
               </tr>;
             })}
+            <tr className="empty-space"><td></td><td></td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
 
@@ -467,13 +471,13 @@ function InvoicePaper({ invoice, subtotal, cgst, sgst, igst, roundOff, grandTota
         </div>
 
         <div className="declaration-signature">
-          <div className="signature-half">
-            <div><b>For {invoice.companyName}</b></div>
-            <div className="authorized">Authorized Signatory</div>
-          </div>
           <div className="declaration-half">
             <b>Declaration</b>
             <div>I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge.</div>
+          </div>
+          <div className="signature-half">
+            <div><b>For {invoice.companyName}</b></div>
+            <div className="authorized">Authorized Signatory</div>
           </div>
         </div>
       </div>
