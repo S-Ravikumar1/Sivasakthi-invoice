@@ -43,7 +43,7 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 
 .invoice-meta strong{font-size:16px;font-weight:800}.invoice-detail-input{font-size:16px!important;font-weight:800!important}.invoice-detail-input:read-only{background:#f7f7f7}
 
-.invoice-summary-row{display:grid;grid-template-columns:1fr 318px;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:9.5px}.invoice-summary-row .words b{display:block;margin-bottom:5px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:1fr 1fr;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444}.signature-half .authorized{left:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:15px;font-size:9.5px}
+.invoice-summary-row{display:grid;grid-template-columns:50% 50%;border-top:1px solid #444}.invoice-summary-row .words{margin:0;border:0;border-right:1px solid #444;min-height:150px;padding:10px;font-size:9.5px}.invoice-summary-row .words b{display:block;margin-bottom:5px}.invoice-summary-row .totals{font-size:10px}.declaration-signature{display:grid;grid-template-columns:50% 50%;min-height:130px;border-top:1px solid #444}.signature-half,.declaration-half{position:relative;padding:12px 8px;font-size:10px}.signature-half{border-right:1px solid #444}.signature-half .authorized{left:8px;bottom:15px}.declaration-half b{display:block;margin-bottom:7px;font-size:10.5px}.declaration-half div{line-height:15px;font-size:9.5px}
 @media print{.invoice-summary-row{break-inside:avoid}.declaration-signature{break-inside:avoid}}
 
 /* Amount-in-words and five equal right-side total rows */
@@ -73,12 +73,12 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 /* Final A4 bottom sections */
 .invoice-paper{height:297mm!important;min-height:297mm!important;overflow:hidden!important}
 .invoice-frame{height:281mm!important;min-height:281mm!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important;overflow:hidden!important}
-.invoice-summary-row{height:130px!important;min-height:130px!important;flex:none!important;margin-top:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) 318px!important;box-sizing:border-box!important;overflow:hidden!important}
+.invoice-summary-row{height:130px!important;min-height:130px!important;flex:none!important;margin-top:auto!important;display:grid!important;grid-template-columns:50% 50%!important;box-sizing:border-box!important;overflow:hidden!important}
 .invoice-summary-row .words{height:130px!important;min-height:130px!important;font-size:12px!important;box-sizing:border-box!important;overflow:hidden!important}
 .invoice-summary-row .words>div{font-size:12px!important;line-height:16px!important}
 .invoice-summary-row .totals{height:130px!important;min-height:130px!important;display:grid!important;grid-template-rows:repeat(5,minmax(0,1fr))!important;box-sizing:border-box!important;overflow:hidden!important}
 .invoice-summary-row .totals>*{height:auto!important;min-height:0!important;box-sizing:border-box!important;overflow:hidden!important}
-.declaration-signature{height:120px!important;min-height:120px!important;flex:none!important;display:grid!important;grid-template-columns:1fr 1fr!important;box-sizing:border-box!important;overflow:hidden!important}
+.declaration-signature{height:120px!important;min-height:120px!important;flex:none!important;display:grid!important;grid-template-columns:50% 50%!important;box-sizing:border-box!important;overflow:hidden!important}
 .declaration-signature .declaration-half{grid-column:1!important;grid-row:1!important;border-right:1px solid #444!important}
 .declaration-signature .signature-half{grid-column:2!important;grid-row:1!important;border-right:0!important;text-align:right!important}
 .declaration-half div,.declaration-half .decltext{font-size:12px!important;line-height:16px!important}
