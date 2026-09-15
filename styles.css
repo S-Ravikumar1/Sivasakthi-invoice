@@ -344,3 +344,28 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .invoice-paper .invoice-summary-row .words {
   border-color: #111 !important;
 }
+
+/* FINAL SECTION SEPARATOR CLEANUP: one line at each section boundary. */
+.invoice-paper .party-block {
+  border-bottom: 0 !important;
+}
+.invoice-paper .bill-table {
+  border-top: 0 !important;
+  border-right: 1.5px solid #111 !important;
+  border-bottom: 1.5px solid #111 !important;
+  border-left: 1.5px solid #111 !important;
+}
+.invoice-paper .bill-table th {
+  border-top: 1.5px solid #111 !important;
+  border-bottom: 1.5px solid #111 !important;
+}
+.invoice-paper .invoice-summary-row {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+.invoice-paper .total-row:last-child {
+  border-bottom: 0 !important;
+}
+.invoice-paper .declaration-signature {
+  border-top: 1.5px solid #111 !important;
+}
