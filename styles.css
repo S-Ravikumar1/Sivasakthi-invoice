@@ -291,3 +291,56 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .invoice-paper .total-row { border-bottom-width: 1.5px !important; border-bottom-style: solid !important; }
 .invoice-paper .declaration-signature { border-top-width: 1.5px !important; border-top-style: solid !important; }
 .invoice-paper .declaration-half { border-right-width: 1.5px !important; border-right-style: solid !important; }
+
+/* FINAL: normalize every visible invoice/PDF rule to the same 1.5px solid line. */
+.invoice-paper .invoice-frame,
+.invoice-paper .invoice-top,
+.invoice-paper .invoice-meta,
+.invoice-paper .seller-block,
+.invoice-paper .party-block,
+.invoice-paper .bill-table,
+.invoice-paper .bill-table th,
+.invoice-paper .bill-table td,
+.invoice-paper .invoice-summary-row,
+.invoice-paper .invoice-summary-row .words,
+.invoice-paper .total-row,
+.invoice-paper .declaration-signature,
+.invoice-paper .declaration-half {
+  border-color: #111 !important;
+  border-style: solid !important;
+}
+.invoice-paper .invoice-frame { border-width: 1.5px !important; }
+.invoice-paper .invoice-top { border-width: 0 0 1.5px 0 !important; }
+.invoice-paper .invoice-meta { border-width: 0 0 0 1.5px !important; }
+.invoice-paper .seller-block,
+.invoice-paper .party-block { border-width: 0 0 1.5px 0 !important; }
+.invoice-paper .bill-table {
+  border-width: 1.5px !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+.invoice-paper .bill-table th,
+.invoice-paper .bill-table td {
+  border-left-width: 1.5px !important;
+  border-right-width: 1.5px !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+.invoice-paper .bill-table th {
+  border-top-width: 1.5px !important;
+  border-bottom-width: 1.5px !important;
+}
+.invoice-paper .bill-table tbody tr:last-child td { border-bottom-width: 1.5px !important; }
+.invoice-paper .invoice-summary-row { border-width: 0 !important; }
+.invoice-paper .invoice-summary-row .words { border-width: 0 1.5px 0 0 !important; }
+.invoice-paper .total-row { border-width: 0 0 1.5px 0 !important; }
+.invoice-paper .declaration-signature { border-width: 1.5px 0 0 0 !important; }
+.invoice-paper .declaration-half { border-width: 0 1.5px 0 0 !important; }
+
+/* Avoid any legacy light-gray border declarations leaking into the generated PDF. */
+.invoice-paper .bill-table th,
+.invoice-paper .bill-table td,
+.invoice-paper .total-row,
+.invoice-paper .invoice-summary-row .words {
+  border-color: #111 !important;
+}
