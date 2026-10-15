@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import {
   Plus, Trash2, Download, Printer, Save, RotateCcw, FileText,
   Building2, UserRound, Settings2, Eye, X, Search
@@ -192,27 +190,48 @@ function App() {
   };
 
   const downloadPdf = async () => {
-    let holder = null;
     try {
-      if (!printRef.current) throw new Error("Invoice preview is not ready");
-      const source = printRef.current;
-      const clone = source.cloneNode(true);
-      holder = document.createElement("div");
-      Object.assign(holder.style, { position:"fixed", left:"0", top:"0", width:"794px", height:"1123px", overflow:"hidden", opacity:"0", pointerEvents:"none", zIndex:"-1", background:"#fff" });
-      Object.assign(clone.style, { width:"794px", height:"1123px", minHeight:"1123px", margin:"0", transform:"none", overflow:"hidden", background:"#fff" });
-      holder.appendChild(clone);
-      document.body.appendChild(holder);
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const canvas = await html2canvas(clone, { scale:3, useCORS:true, backgroundColor:"#fff", width:794, height:1123, windowWidth:794, windowHeight:1123, scrollX:0, scrollY:0 });
-      const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4", compress:true });
-      // Use lossless PNG so thin black table borders do not become uneven from JPEG compression.
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297);
-      pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
+      const response = await fetch("/api/render-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoice,
+          products: productTotals,
+          subtotal,
+          cgst,
+          sgst,
+          igst,
+          roundOff,
+          grandTotal,
+          taxRate: Number(invoice.gstRate || 0)
+        })
+      });
+
+      if (!response.ok) {
+        let message = "Could not generate PDF";
+        try {
+          const result = await response.json();
+          message = result.error || message;
+        } catch {}
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      if (!blob.size || (blob.type && !blob.type.includes("pdf"))) {
+        throw new Error("The PDF service did not return a valid PDF. Check the Render service and RENDER_PDF_URL setting.");
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${String(invoice.invoiceNo || "tax-invoice").replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
-      console.error("Browser PDF generation failed:", error);
+      console.error("Server PDF generation failed:", error);
       alert(`PDF generation failed: ${error?.message || "Unknown error"}`);
-    } finally {
-      if (holder) holder.remove();
     }
   };
   const printInvoice = () => window.print();
