@@ -1,81 +1,16 @@
-# Siva Sakthi Invoice Billing Website — PostgreSQL Edition
+# Siva Sakthi Invoice Billing Website — Vercel Vector PDF edition
 
-A Vite + React billing website with PostgreSQL storage, editable invoice history, automatic invoice numbering, duplicate-number versioning, and an A4 tax-invoice PDF layout.
+This project keeps the existing React invoice editor, PostgreSQL/Neon invoice storage, invoice versioning, and A4 layout. PDF download is generated directly by the Vercel `/api/render-pdf` function using jsPDF vector drawing. It does not require Render, `RENDER_PDF_URL`, or `PDF_API_TOKEN`.
 
-## Database features
+## Deploy
 
-- PostgreSQL stores every saved invoice.
-- Refreshing the page starts a new invoice using the next numeric invoice number.
-- Saved invoices can be searched and opened again for editing.
-- Saving a new invoice with an existing number automatically versions the previous invoices:
-  - `10` → `10a`
-  - next new `10` → old `10a` becomes `10b`, old `10` becomes `10a`
-  - next new `10` → `10a` → `10b`, `10b` → `10c`
-- Saving an edited saved invoice creates a new current version: 10 → 10a, then 10a → 10b, while the newest saved invoice always keeps the base number 10.
-- Invoice number and date are displayed at 16px bold.
-- Party name and address remain 16px.
-- PDF/print invoice is A4.
+1. Upload the contents of this folder to the root of your GitHub repository.
+2. In Vercel, set `DATABASE_URL` to your Neon PostgreSQL connection string (Production, and Preview if needed).
+3. Build command: `npm run build`; output directory: `dist`.
+4. Redeploy.
 
-## PostgreSQL setup
+The `api/` folder must remain at the repository root so Vercel can detect the serverless functions. The database schema must already be created in Neon.
 
-Create a PostgreSQL database using Neon, Supabase, Railway, or another PostgreSQL provider.
+## PDF notes
 
-Run `db/schema.sql` once in the database SQL editor.
-
-Then add this Vercel environment variable:
-
-```text
-DATABASE_URL=your-postgresql-connection-string
-```
-
-Use the same variable for Production and Preview if you want both environments to use the same database.
-
-## GitHub / Vercel structure
-
-The repository root should contain:
-
-- `index.html`
-- `main.jsx`
-- `styles.css`
-- `package.json`
-- `vite.config.js`
-- `api/invoices.js`
-- `api/next-invoice-number.js`
-- `api/_db.js`
-- `api/_invoice.js`
-- `db/schema.sql`
-
-Vercel detects the Vite frontend and the `/api` serverless functions automatically.
-
-Build command:
-
-```text
-npm run build
-```
-
-Output directory:
-
-```text
-dist
-```
-
-## Local development
-
-```bash
-npm install
-npm run dev
-```
-
-For local API/database testing, set `DATABASE_URL` in the environment before starting the Vite/Vercel development environment.
-
-## Important
-
-This application stores invoice data in PostgreSQL but does not submit GST invoices to the government portal or generate IRNs/e-invoices. Any required GST/e-invoicing compliance integration should be added separately according to the business's requirements.
-
-
-## Server-side PDF with Render
-The browser now sends PDF data to `/api/render-pdf`. Vercel proxies this request to a Render Web Service. Set `RENDER_PDF_URL` in Vercel to the Render service URL plus `/render`. Deploy the same repository as a Render Web Service with Build Command `npm install` and Start Command `npm run render-pdf`. Render web services provide an `onrender.com` URL and must listen on `0.0.0.0`; this project uses the `PORT` environment variable.
-
-
-### PDF service security
-Set the same random `PDF_API_TOKEN` environment variable in both Vercel and Render. The Vercel proxy sends it to Render so the public PDF service cannot be used without the token.
+The PDF endpoint draws text and borders as vector PDF paths instead of embedding a screenshot of the invoice. Shared borders are drawn once using one line width to avoid thickened overlapping edges. The generated PDF should be tested after deployment against the desired invoice content and layout.

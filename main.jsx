@@ -194,43 +194,25 @@ function App() {
       const response = await fetch("/api/render-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          invoice,
-          products: productTotals,
-          subtotal,
-          cgst,
-          sgst,
-          igst,
-          roundOff,
-          grandTotal,
-          taxRate: Number(invoice.gstRate || 0)
-        })
+        body: JSON.stringify({ invoice })
       });
-
-      if (!response.ok) {
+      const contentType = response.headers.get("content-type") || "";
+      if (!response.ok || !contentType.includes("application/pdf")) {
         let message = "Could not generate PDF";
-        try {
-          const result = await response.json();
-          message = result.error || message;
-        } catch {}
+        try { const result = await response.json(); message = result.error || message; } catch {}
         throw new Error(message);
       }
-
       const blob = await response.blob();
-      if (!blob.size || (blob.type && !blob.type.includes("pdf"))) {
-        throw new Error("The PDF service did not return a valid PDF. Check the Render service and RENDER_PDF_URL setting.");
-      }
-
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${String(invoice.invoiceNo || "tax-invoice").replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`;
+      link.download = `${invoice.invoiceNo || "tax-invoice"}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Server PDF generation failed:", error);
+      console.error("PDF generation failed:", error);
       alert(`PDF generation failed: ${error?.message || "Unknown error"}`);
     }
   };

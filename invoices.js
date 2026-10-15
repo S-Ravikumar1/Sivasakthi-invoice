@@ -1,5 +1,5 @@
-import pool from "./db.js";
-import { cleanBase, makeInvoiceNo } from "./invoice.js";
+import pool from "../db.js";
+import { cleanBase, makeInvoiceNo } from "../invoice.js";
 
 function send(res, status, body) {
   res.status(status).json(body);
