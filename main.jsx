@@ -11,14 +11,14 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2 B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
-  phone: "9843356611",
-  email: "",
-  gstin: "33AWAPS4955J1Z8",
-  partyName: "JG HOSIERY PVT LTD",
-  partyAddress: "5, JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
-  partyGstin: "33AAACJ9381N1Z3",
+  companyName: "SIVA SAKTHI HOSIERY",
+  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
+  phone: "Phone Number",
+  email: "Email",
+  gstin: "33ABCD1234A1Z5",
+  partyName: "CUSTOMER NAME",
+  partyAddress: "Customer Address, City, State, PIN",
+  partyGstin: "",
   taxMode: "cgstsgst",
   gstRate: 5,
   products: [
@@ -203,9 +203,10 @@ function App() {
       holder.appendChild(clone);
       document.body.appendChild(holder);
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const canvas = await html2canvas(clone, { scale:2, useCORS:true, backgroundColor:"#fff", width:794, height:1123, windowWidth:794, windowHeight:1123, scrollX:0, scrollY:0 });
+      const canvas = await html2canvas(clone, { scale:3, useCORS:true, backgroundColor:"#fff", width:794, height:1123, windowWidth:794, windowHeight:1123, scrollX:0, scrollY:0 });
       const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4", compress:true });
-      pdf.addImage(canvas.toDataURL("image/jpeg",0.98), "JPEG", 0, 0, 210, 297);
+      // Use lossless PNG so thin black table borders do not become uneven from JPEG compression.
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297);
       pdf.save(`${invoice.invoiceNo || "tax-invoice"}.pdf`);
     } catch (error) {
       console.error("Browser PDF generation failed:", error);
