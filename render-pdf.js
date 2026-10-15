@@ -35,7 +35,7 @@ function handler(req, res) {
     const black = [17,17,17];
     pdf.setDrawColor(...black); pdf.setTextColor(25,25,25); pdf.setLineWidth(0.35); pdf.setFont("helvetica","normal");
     const x0=8, x1=105, x2=128.28, x3=151.56, x4=174.84, x5=202;
-    const y0=8, y1=20, y2=48, y3=73, y4=85, y5=207, y6=239, y7=289;
+    const y0=8, y1=20, y2=48, y3=73, y4=85, y5=236, y6=262.5, y7=289;
     // Draw each shared border exactly once as vector geometry to avoid doubled cell edges.
     pdf.rect(x0,y0,x5-x0,y7-y0);
     [y1,y2,y3,y4,y5,y6].forEach(y=>pdf.line(x0,y,x5,y));
@@ -80,8 +80,8 @@ function handler(req, res) {
       pdf.setFont("helvetica","bold"); pdf.setFontSize(7.5); pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"}); py+=9; pdf.setFontSize(8.5);
     }
     // Five equal total rows with single vector separators
-    pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text("Total Amount (Rs. in Words):",10,214);
-    pdf.setFont("helvetica","bold"); pdf.text(`${words(grandTotal)} Rupees Only`,10,219.5,{maxWidth:90});
+    pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text("Total Amount (Rs. in Words):",10,y5+7);
+    pdf.setFont("helvetica","bold"); pdf.text(`${words(grandTotal)} Rupees Only`,10,y5+12.5,{maxWidth:90});
     const tx=x1+2, amountX=x5-3, rowH=(y6-y5)/5;
     const totals=[ ["Total",money(subtotal),true], ...(invoice.taxMode === "igst" ? [[`Add : IGST @ ${taxRate.toFixed(2)}%`,money(igst),false]] : [[`Add : CGST @ ${(taxRate/2).toFixed(2)}%`,money(cgst),false],[`Add : SGST @ ${(taxRate/2).toFixed(2)}%`,money(sgst),false]]), ["Round Off",money(roundOff),false], ["Grand Total",money(grandTotal),true] ];
     // Normalize to five rows if tax mode differs.
@@ -89,8 +89,8 @@ function handler(req, res) {
     totals.slice(0,5).forEach((r,i)=>{ const yy=y5+i*rowH; if(i>0) pdf.line(x1,yy,x5,yy); pdf.setFont("helvetica",r[2]?"bold":"normal"); pdf.setFontSize(r[0]==="Grand Total"?9:8.2); pdf.text(r[0],tx,yy+rowH*0.62); pdf.text(r[1],amountX,yy+rowH*0.62,{align:"right"}); });
     // Declaration and signature halves
     pdf.line(x1,y6,x1,y7);
-    pdf.setFont("helvetica","bold"); pdf.setFontSize(8.5); pdf.text("Declaration",10,244.5); pdf.text(`For ${text(invoice.companyName||"")}`,199.5,244.5,{align:"right",maxWidth:90});
-    pdf.setFont("helvetica","normal"); pdf.setFontSize(8); const decl="I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge."; pdf.text(pdf.splitTextToSize(decl,91),10,250.5);
+    pdf.setFont("helvetica","bold"); pdf.setFontSize(8.5); pdf.text("Declaration",10,y6+5.5); pdf.text(`For ${text(invoice.companyName||"")}`,199.5,y6+5.5,{align:"right",maxWidth:90});
+    pdf.setFont("helvetica","normal"); pdf.setFontSize(8); const decl="I declare that this invoice shows the actual price of the jobwork and all the particulars are true and correct to the best of my knowledge."; pdf.text(pdf.splitTextToSize(decl,91),10,y6+11.5);
     pdf.setFont("helvetica","bold"); pdf.setFontSize(8.5); pdf.text("Authorized Signatory",199.5,284.5,{align:"right"});
     const bytes=Buffer.from(pdf.output("arraybuffer"));
     res.setHeader("Content-Type","application/pdf"); res.setHeader("Content-Disposition",`attachment; filename="${text(invoice.invoiceNo||"tax-invoice").replace(/[^a-zA-Z0-9_-]/g,"_")}.pdf"`); res.setHeader("Cache-Control","no-store"); return res.status(200).send(bytes);
