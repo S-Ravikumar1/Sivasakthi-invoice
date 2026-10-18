@@ -31,15 +31,12 @@ function money(value) {
     maximumFractionDigits: 2
   });
 }
-function normalizeRate(value) {
+function rateDisplay(value) {
   const raw = String(value ?? "").trim();
   if (raw === "") return "";
   const num = Number(raw);
   if (!Number.isFinite(num)) return raw;
-  return String(Math.round((num + Number.EPSILON) * 1000) / 1000);
-}
-function rateDisplay(value) {
-  return normalizeRate(value);
+  return num.toLocaleString("en-IN", { useGrouping: true, maximumFractionDigits: 20 });
 }
 
 function numberToWordsIndian(number) {
@@ -116,12 +113,12 @@ function App() {
   const [editingProductId, setEditingProductId] = useState(null);
   const [partyDraft, setPartyDraft] = useState({ name: "", address: "", gstin: "" });
   const [productDraft, setProductDraft] = useState({ name: "", hsn: "", rate: "" });
-  const printRef = useRef(null);
-  // Synchronous locks prevent duplicate master saves from repeated clicks before React re-renders.
-  const savingPartyRef = useRef(false);
-  const savingProductRef = useRef(false);
   const [savingParty, setSavingParty] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
+  // Synchronous locks stop rapid double taps before React state updates.
+  const savingPartyRef = useRef(false);
+  const savingProductRef = useRef(false);
+  const printRef = useRef(null);
 
   const loadMasters = async () => {
     try {
@@ -129,14 +126,13 @@ function App() {
       const [partyData, productData] = await Promise.all([readApiResponse(partyResponse), readApiResponse(productResponse)]);
       if (!partyResponse.ok) throw new Error(partyData.error || "Could not load parties");
       if (!productResponse.ok) throw new Error(productData.error || "Could not load products");
-      setParties(partyData);
-      // Normalize existing PostgreSQL NUMERIC values (e.g. "12.852000") for the UI.
-      setProductMaster(productData.map(p => ({ ...p, rate: normalizeRate(p.rate) })));
+      setParties(partyData); setProductMaster(productData);
     } catch (error) { console.error(error); alert(`Could not load party/product masters from Neon. ${error.message}`); }
   };
   useEffect(() => { loadMasters(); }, []);
 
   const savePartyMaster = async () => {
+    // A ref locks synchronously; state alone cannot stop two rapid taps.
     if (savingPartyRef.current) return;
     const name = partyDraft.name.trim();
     if (!name) { alert("Enter party name"); return; }
@@ -159,7 +155,7 @@ function App() {
     savingProductRef.current = true;
     setSavingProduct(true);
     try {
-      const response = await fetch("/api/products", { method: editingProductId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productDraft, id: editingProductId || undefined, name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : Math.round(Number(productDraft.rate) * 1000) / 1000 }) });
+      const response = await fetch("/api/products", { method: editingProductId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productDraft, id: editingProductId || undefined, name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : productDraft.rate }) });
       const product = await readApiResponse(response);
       if (!response.ok) throw new Error(product.error || "Could not save product");
       await loadMasters(); setProductDraft({ name: "", hsn: "", rate: "" }); setEditingProductId(null); setShowProductForm(false);
@@ -167,14 +163,14 @@ function App() {
     finally { savingProductRef.current = false; setSavingProduct(false); }
   };
   const editParty = party => { setEditingPartyId(party.id); setPartyDraft({ name: party.name, address: party.address || "", gstin: party.gstin || "" }); setShowPartyForm(true); };
-  const editProduct = product => { setEditingProductId(product.id); setProductDraft({ name: product.name, hsn: product.hsn || "", rate: normalizeRate(product.rate) }); setShowProductForm(true); };
+  const editProduct = product => { setEditingProductId(product.id); setProductDraft({ name: product.name, hsn: product.hsn || "", rate: String(product.rate ?? "") }); setShowProductForm(true); };
   const selectParty = value => {
     const party = parties.find(p => p.id === value);
     if (party) setInvoice(prev => ({ ...prev, partyName: party.name, partyAddress: party.address, partyGstin: party.gstin }));
   };
   const selectProduct = (productId, value) => {
     const savedProduct = productMaster.find(p => p.id === value);
-    if (savedProduct) setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, name: savedProduct.name, hsn: savedProduct.hsn, rate: normalizeRate(savedProduct.rate) } : p) }));
+    if (savedProduct) setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, name: savedProduct.name, hsn: savedProduct.hsn, rate: savedProduct.rate } : p) }));
   };
 
   const productTotals = useMemo(() => (
@@ -398,7 +394,7 @@ function App() {
                       </Field>
                       <Field label="Product Name"><input placeholder="Product name" value={product.name} onChange={e => updateProduct(product.id,"name",e.target.value)} /></Field>
                       <Field label="HSN Code"><input placeholder="HSN" value={product.hsn} onChange={e => updateProduct(product.id,"hsn",e.target.value)} /></Field>
-                      <Field label="Single Rate"><input type="number" min="0" step="0.001" value={normalizeRate(product.rate)} onChange={e => updateProduct(product.id,"rate",normalizeRate(e.target.value))} /></Field>
+                      <Field label="Single Rate"><input type="number" min="0" step="0.01" value={product.rate} onChange={e => updateProduct(product.id,"rate",e.target.value)} /></Field>
                     </div>
                     <div className="subitems-head"><span>Items under this product</span><button className="small-add" onClick={() => addProductItem(product.id)}><Plus size={14}/> Add Item</button></div>
                     <div className="subitems-labels"><span>DC NO</span><span>PCS</span><span></span></div>
@@ -457,7 +453,7 @@ function App() {
               <Field label="GSTIN"><input value={partyDraft.gstin} onChange={e => setPartyDraft(p => ({...p, gstin:e.target.value.toUpperCase()}))} placeholder="GSTIN (optional)" /></Field>
               <Field label="Address" full><textarea value={partyDraft.address} onChange={e => setPartyDraft(p => ({...p, address:e.target.value}))} placeholder="Full party address" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" onClick={savePartyMaster} disabled={savingParty}><Save size={15}/> {savingParty ? "Saving…" : editingPartyId ? "Update Party" : "Save Party"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" disabled={savingParty} onClick={savePartyMaster}><Save size={15}/> {savingParty ? "Saving..." : editingPartyId ? "Update Party" : "Save Party"}</button></div>
           </div>
         </div>
       )}
@@ -469,9 +465,9 @@ function App() {
             <div className="modal-body"><div className="form-grid two">
               <Field label="Product Name"><input autoFocus value={productDraft.name} onChange={e => setProductDraft(p => ({...p, name:e.target.value}))} placeholder="Enter product name" /></Field>
               <Field label="HSN Code"><input value={productDraft.hsn} onChange={e => setProductDraft(p => ({...p, hsn:e.target.value}))} placeholder="HSN code" /></Field>
-              <Field label="Rate per PCS"><input type="number" min="0" step="0.001" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:normalizeRate(e.target.value)}))} placeholder="Rate" /></Field>
+              <Field label="Rate per PCS"><input type="number" min="0" step="any" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:e.target.value}))} placeholder="Rate" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" onClick={saveProductMaster} disabled={savingProduct}><Save size={15}/> {savingProduct ? "Saving…" : editingProductId ? "Update Product" : "Save Product"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" disabled={savingProduct} onClick={saveProductMaster}><Save size={15}/> {savingProduct ? "Saving..." : editingProductId ? "Update Product" : "Save Product"}</button></div>
           </div>
         </div>
       )}
