@@ -1,7 +1,11 @@
 import pool from "./db.js";
 
 function send(res, status, body) { return res.status(status).json(body); }
-function mapProduct(row) { return { id: String(row.id), name: row.product_name, hsn: row.hsn_code || "", rate: String(row.rate ?? 0) }; }
+function mapProduct(row) {
+  const rawRate = Number(row.rate ?? 0);
+  const rate = Number.isFinite(rawRate) ? Math.round((rawRate + Number.EPSILON) * 1000) / 1000 : 0;
+  return { id: String(row.id), name: row.product_name, hsn: row.hsn_code || "", rate: String(rate) };
+}
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
