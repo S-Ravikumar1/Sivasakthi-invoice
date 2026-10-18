@@ -113,6 +113,11 @@ function App() {
   const [editingProductId, setEditingProductId] = useState(null);
   const [partyDraft, setPartyDraft] = useState({ name: "", address: "", gstin: "" });
   const [productDraft, setProductDraft] = useState({ name: "", hsn: "", rate: "" });
+  const [savingParty, setSavingParty] = useState(false);
+  const [savingProduct, setSavingProduct] = useState(false);
+  // Synchronous locks stop rapid double taps before React state updates.
+  const savingPartyRef = useRef(false);
+  const savingProductRef = useRef(false);
   const printRef = useRef(null);
 
   const loadMasters = async () => {
@@ -127,8 +132,12 @@ function App() {
   useEffect(() => { loadMasters(); }, []);
 
   const savePartyMaster = async () => {
+    // A ref locks synchronously; state alone cannot stop two rapid taps.
+    if (savingPartyRef.current) return;
     const name = partyDraft.name.trim();
     if (!name) { alert("Enter party name"); return; }
+    savingPartyRef.current = true;
+    setSavingParty(true);
     try {
       const response = await fetch("/api/parties", { method: editingPartyId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...partyDraft, id: editingPartyId || undefined, name, address: partyDraft.address.trim(), gstin: partyDraft.gstin.trim().toUpperCase() }) });
       const party = await readApiResponse(response);
@@ -137,16 +146,21 @@ function App() {
       setInvoice(prev => ({ ...prev, partyName: party.name, partyAddress: party.address, partyGstin: party.gstin }));
       setPartyDraft({ name: "", address: "", gstin: "" }); setEditingPartyId(null); setShowPartyForm(false);
     } catch (error) { alert(error.message); }
+    finally { savingPartyRef.current = false; setSavingParty(false); }
   };
   const saveProductMaster = async () => {
+    if (savingProductRef.current) return;
     const name = productDraft.name.trim();
     if (!name) { alert("Enter product name"); return; }
+    savingProductRef.current = true;
+    setSavingProduct(true);
     try {
       const response = await fetch("/api/products", { method: editingProductId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productDraft, id: editingProductId || undefined, name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : productDraft.rate }) });
       const product = await readApiResponse(response);
       if (!response.ok) throw new Error(product.error || "Could not save product");
       await loadMasters(); setProductDraft({ name: "", hsn: "", rate: "" }); setEditingProductId(null); setShowProductForm(false);
     } catch (error) { alert(error.message); }
+    finally { savingProductRef.current = false; setSavingProduct(false); }
   };
   const editParty = party => { setEditingPartyId(party.id); setPartyDraft({ name: party.name, address: party.address || "", gstin: party.gstin || "" }); setShowPartyForm(true); };
   const editProduct = product => { setEditingProductId(product.id); setProductDraft({ name: product.name, hsn: product.hsn || "", rate: String(product.rate ?? "") }); setShowProductForm(true); };
@@ -439,7 +453,7 @@ function App() {
               <Field label="GSTIN"><input value={partyDraft.gstin} onChange={e => setPartyDraft(p => ({...p, gstin:e.target.value.toUpperCase()}))} placeholder="GSTIN (optional)" /></Field>
               <Field label="Address" full><textarea value={partyDraft.address} onChange={e => setPartyDraft(p => ({...p, address:e.target.value}))} placeholder="Full party address" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" onClick={savePartyMaster}><Save size={15}/> {editingPartyId ? "Update Party" : "Save Party"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" disabled={savingParty} onClick={savePartyMaster}><Save size={15}/> {savingParty ? "Saving..." : editingPartyId ? "Update Party" : "Save Party"}</button></div>
           </div>
         </div>
       )}
@@ -453,7 +467,7 @@ function App() {
               <Field label="HSN Code"><input value={productDraft.hsn} onChange={e => setProductDraft(p => ({...p, hsn:e.target.value}))} placeholder="HSN code" /></Field>
               <Field label="Rate per PCS"><input type="number" min="0" step="any" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:e.target.value}))} placeholder="Rate" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" onClick={saveProductMaster}><Save size={15}/> {editingProductId ? "Update Product" : "Save Product"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" disabled={savingProduct} onClick={saveProductMaster}><Save size={15}/> {savingProduct ? "Saving..." : editingProductId ? "Update Product" : "Save Product"}</button></div>
           </div>
         </div>
       )}
