@@ -1,11 +1,7 @@
 import pool from "./db.js";
 
 function send(res, status, body) { return res.status(status).json(body); }
-function mapProduct(row) {
-  const rawRate = Number(row.rate ?? 0);
-  const rate = Number.isFinite(rawRate) ? Math.round((rawRate + Number.EPSILON) * 1000) / 1000 : 0;
-  return { id: String(row.id), name: row.product_name, hsn: row.hsn_code || "", rate: String(rate) };
-}
+function mapProduct(row) { return { id: String(row.id), name: row.product_name, hsn: row.hsn_code || "", rate: String(row.rate ?? 0) }; }
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
@@ -18,8 +14,7 @@ export default async function handler(req, res) {
     const body = req.body || {};
     const name = String(body.name || "").trim();
     const hsn = String(body.hsn || "").trim();
-    const rawRate = body.rate === "" || body.rate == null ? 0 : Number(body.rate);
-    const rate = Number.isFinite(rawRate) ? Math.round((rawRate + Number.EPSILON) * 1000) / 1000 : rawRate;
+    const rate = body.rate === "" || body.rate == null ? 0 : Number(body.rate);
     if (!name) return send(res, 400, { error: "Product name is required" });
     if (!Number.isFinite(rate) || rate < 0) return send(res, 400, { error: "Product rate must be a valid non-negative number" });
     let client;
@@ -53,8 +48,7 @@ export default async function handler(req, res) {
     if (!body.id) return send(res, 400, { error: "Product id is required" });
     const name = String(body.name || "").trim();
     const hsn = String(body.hsn || "").trim();
-    const rawRate = body.rate === "" || body.rate == null ? 0 : Number(body.rate);
-    const rate = Number.isFinite(rawRate) ? Math.round((rawRate + Number.EPSILON) * 1000) / 1000 : rawRate;
+    const rate = body.rate === "" || body.rate == null ? 0 : Number(body.rate);
     if (!name) return send(res, 400, { error: "Product name is required" });
     if (!Number.isFinite(rate) || rate < 0) return send(res, 400, { error: "Product rate must be a valid non-negative number" });
     try {

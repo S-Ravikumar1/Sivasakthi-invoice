@@ -30,7 +30,3 @@ This archive combines the latest available invoice project files with the workin
 - This is a source-code backup, not a database backup. It does not include your Neon records or secret environment variables.
 - Do not commit your real `DATABASE_URL` or other secrets into GitHub.
 - Preserve the existing production project and verify deployment before replacing any working files.
-
-## Product rate precision
-
-Product master rates are rounded to a maximum of 3 decimal places when saved or updated, and the rate input uses a 0.001 step.
