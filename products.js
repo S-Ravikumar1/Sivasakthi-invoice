@@ -1,4 +1,4 @@
-import pool from "../db.js";
+import pool from "./db.js";
 function send(res, status, body) { return res.status(status).json(body); }
 function mapProduct(row) { return { id: String(row.id), name: row.product_name, hsn: row.hsn_code || "", rate: String(row.rate ?? "0") }; }
 export default async function handler(req, res) {
