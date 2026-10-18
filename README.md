@@ -1,16 +1,36 @@
-# Siva Sakthi Hosiery Invoice Billing Website
+# Siva Sakthi Hosiery Invoice — Full Source Backup
 
-## Party and product dropdowns
-- Use **Add Party** to save a party name, address and GSTIN. Saved parties appear in the party dropdown. Selecting a party fills those three invoice fields automatically.
-- Use **Add Product Type** to save a product name, HSN code and rate. Saved products appear in each product dropdown. Selecting one fills product name, HSN and rate.
-- **Add Product to Invoice** still adds another product row to the current invoice. **Add Item** continues to add DC No / PCS rows under a product.
-- Party and product masters are currently stored in this browser's local storage. They remain available in the same browser/device, but are not shared between devices or browsers. Clearing site data will clear these master lists. Invoice saving/history continues to use the existing API and Neon database.
+This archive combines the latest available invoice project files with the working Neon-backed party/product masters and duplicate-save protections confirmed in the deployed version.
 
-## Deployment
-1. Keep the existing Vercel `DATABASE_URL` environment variable.
-2. Upload the updated files to the existing project/repository, preserving any deployment configuration and PDF-generation files already present in your repository.
-3. Deploy using `npm run build` with Vite output directory `dist`.
-4. Test adding/selecting parties and products, invoice saving/history, and PDF download after deployment.
+## Included
 
-## Important
-The files supplied in this chat did not include `render-pdf.js` or deployment configuration files such as `vercel.json`. Preserve those files from your existing repository when updating it; they may be required by the current PDF and API routing setup.
+- React invoice UI and CSS (`main.jsx`, `styles.css`)
+- Invoice database APIs and next invoice number API
+- Neon PostgreSQL connection (`db.js`)
+- Party and product master APIs (`parties.js`, `products.js`) with duplicate-submission protection
+- PDF API wrapper and PDF generator (`api-render-pdf.js`, `render-pdf.js`)
+- Vercel routes for invoice, PDF, party, and product APIs (`vercel.json`)
+- Database schema for invoices, parties, and products (`schema.sql`)
+- `package.json`, `vite.config.js`, `index.html`, and `invoice.js`
+
+## Deploy / restore
+
+1. Keep a copy of this ZIP as your backup.
+2. Extract all files into the root of your GitHub repository, preserving the file names and folders.
+3. Ensure Vercel has the `DATABASE_URL` environment variable set to your existing Neon PostgreSQL connection string.
+4. Deploy on Vercel.
+5. Verify `/api/parties` and `/api/products` return JSON on the production domain, then test invoice save/history and PDF generation.
+
+## Database
+
+`schema.sql` contains the table definitions for invoices, parties, and products. Run it in the Neon SQL Editor only if those tables are not already present. It uses `CREATE TABLE IF NOT EXISTS` and does not delete existing records.
+
+## Notes
+
+- This is a source-code backup, not a database backup. It does not include your Neon records or secret environment variables.
+- Do not commit your real `DATABASE_URL` or other secrets into GitHub.
+- Preserve the existing production project and verify deployment before replacing any working files.
+
+## Product rate precision
+
+Product master rates are rounded to a maximum of 3 decimal places when saved or updated, and the rate input uses a 0.001 step.

@@ -9,11 +9,11 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2, B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
-  phone: "9843356611",
-  email: "",
-  gstin: "33AWAPS4955J1Z81",
+  companyName: "SIVA SAKTHI HOSIERY",
+  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
+  phone: "Phone Number",
+  email: "Email",
+  gstin: "33ABCD1234A1Z5",
   partyName: "CUSTOMER NAME",
   partyAddress: "Customer Address, City, State, PIN",
   partyGstin: "",
@@ -113,12 +113,12 @@ function App() {
   const [editingProductId, setEditingProductId] = useState(null);
   const [partyDraft, setPartyDraft] = useState({ name: "", address: "", gstin: "" });
   const [productDraft, setProductDraft] = useState({ name: "", hsn: "", rate: "" });
-  const [savingParty, setSavingParty] = useState(false);
-  const [savingProduct, setSavingProduct] = useState(false);
-  // Synchronous locks stop rapid double taps before React state updates.
+  const printRef = useRef(null);
+  // Synchronous locks prevent duplicate master saves from repeated clicks before React re-renders.
   const savingPartyRef = useRef(false);
   const savingProductRef = useRef(false);
-  const printRef = useRef(null);
+  const [savingParty, setSavingParty] = useState(false);
+  const [savingProduct, setSavingProduct] = useState(false);
 
   const loadMasters = async () => {
     try {
@@ -132,7 +132,6 @@ function App() {
   useEffect(() => { loadMasters(); }, []);
 
   const savePartyMaster = async () => {
-    // A ref locks synchronously; state alone cannot stop two rapid taps.
     if (savingPartyRef.current) return;
     const name = partyDraft.name.trim();
     if (!name) { alert("Enter party name"); return; }
@@ -155,7 +154,7 @@ function App() {
     savingProductRef.current = true;
     setSavingProduct(true);
     try {
-      const response = await fetch("/api/products", { method: editingProductId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productDraft, id: editingProductId || undefined, name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : productDraft.rate }) });
+      const response = await fetch("/api/products", { method: editingProductId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productDraft, id: editingProductId || undefined, name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : Math.round(Number(productDraft.rate) * 1000) / 1000 }) });
       const product = await readApiResponse(response);
       if (!response.ok) throw new Error(product.error || "Could not save product");
       await loadMasters(); setProductDraft({ name: "", hsn: "", rate: "" }); setEditingProductId(null); setShowProductForm(false);
@@ -453,7 +452,7 @@ function App() {
               <Field label="GSTIN"><input value={partyDraft.gstin} onChange={e => setPartyDraft(p => ({...p, gstin:e.target.value.toUpperCase()}))} placeholder="GSTIN (optional)" /></Field>
               <Field label="Address" full><textarea value={partyDraft.address} onChange={e => setPartyDraft(p => ({...p, address:e.target.value}))} placeholder="Full party address" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" disabled={savingParty} onClick={savePartyMaster}><Save size={15}/> {savingParty ? "Saving..." : editingPartyId ? "Update Party" : "Save Party"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowPartyForm(false); setEditingPartyId(null); }}>Cancel</button><button className="btn primary" onClick={savePartyMaster} disabled={savingParty}><Save size={15}/> {savingParty ? "Saving…" : editingPartyId ? "Update Party" : "Save Party"}</button></div>
           </div>
         </div>
       )}
@@ -465,9 +464,9 @@ function App() {
             <div className="modal-body"><div className="form-grid two">
               <Field label="Product Name"><input autoFocus value={productDraft.name} onChange={e => setProductDraft(p => ({...p, name:e.target.value}))} placeholder="Enter product name" /></Field>
               <Field label="HSN Code"><input value={productDraft.hsn} onChange={e => setProductDraft(p => ({...p, hsn:e.target.value}))} placeholder="HSN code" /></Field>
-              <Field label="Rate per PCS"><input type="number" min="0" step="any" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:e.target.value}))} placeholder="Rate" /></Field>
+              <Field label="Rate per PCS"><input type="number" min="0" step="0.001" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:e.target.value}))} placeholder="Rate" /></Field>
             </div></div>
-            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" disabled={savingProduct} onClick={saveProductMaster}><Save size={15}/> {savingProduct ? "Saving..." : editingProductId ? "Update Product" : "Save Product"}</button></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => { setShowProductForm(false); setEditingProductId(null); }}>Cancel</button><button className="btn primary" onClick={saveProductMaster} disabled={savingProduct}><Save size={15}/> {savingProduct ? "Saving…" : editingProductId ? "Update Product" : "Save Product"}</button></div>
           </div>
         </div>
       )}

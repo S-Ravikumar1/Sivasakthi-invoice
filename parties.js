@@ -13,14 +13,35 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const body = req.body || {};
     const name = String(body.name || "").trim();
+    const address = String(body.address || "").trim();
+    const gstin = String(body.gstin || "").trim().toUpperCase();
     if (!name) return send(res, 400, { error: "Party name is required" });
+    let client;
     try {
-      const { rows } = await pool.query(
-        "INSERT INTO parties (party_name, party_address, gstin) VALUES ($1, $2, $3) RETURNING id, party_name, party_address, gstin",
-        [name, String(body.address || "").trim(), String(body.gstin || "").trim().toUpperCase()]
+      client = await pool.connect();
+      await client.query("BEGIN");
+      // Serialize identical submissions across serverless instances.
+      const key = JSON.stringify([name.toLocaleLowerCase(), address, gstin]);
+      await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [key]);
+      const existing = await client.query(
+        "SELECT id, party_name, party_address, gstin FROM parties WHERE lower(trim(party_name)) = lower($1) AND trim(coalesce(party_address, '')) = $2 AND upper(trim(coalesce(gstin, ''))) = $3 ORDER BY id LIMIT 1",
+        [name, address, gstin]
       );
-      return send(res, 201, mapParty(rows[0]));
-    } catch (error) { console.error("POST parties", error); return send(res, 500, { error: "Could not save party" }); }
+      if (existing.rows[0]) {
+        await client.query("COMMIT");
+        return send(res, 200, mapParty(existing.rows[0]));
+      }
+      const inserted = await client.query(
+        "INSERT INTO parties (party_name, party_address, gstin) VALUES ($1, $2, $3) RETURNING id, party_name, party_address, gstin",
+        [name, address, gstin]
+      );
+      await client.query("COMMIT");
+      return send(res, 201, mapParty(inserted.rows[0]));
+    } catch (error) {
+      if (client) await client.query("ROLLBACK").catch(() => {});
+      console.error("POST parties", error);
+      return send(res, 500, { error: "Could not save party" });
+    } finally { client?.release(); }
   }
   if (req.method === "PUT") {
     const body = req.body || {};
