@@ -1,4 +1,4 @@
-import pool from "../db.js";
+import pool from "./db.js";
 
 function send(res, status, body) { return res.status(status).json(body); }
 function mapParty(row) { return { id: String(row.id), name: row.party_name, address: row.party_address || "", gstin: row.gstin || "" }; }
