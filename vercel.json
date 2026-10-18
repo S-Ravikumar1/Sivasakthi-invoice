@@ -14,5 +14,13 @@
     {"src": "/api/render-pdf", "dest": "/api-render-pdf.js"},
     {"handle": "filesystem"},
     {"src": "/(.*)", "dest": "/index.html"}
+    {
+  "src": "parties.js",
+  "use": "@vercel/node"
+},
+{
+  "src": "products.js",
+  "use": "@vercel/node"
+}
   ]
 }
