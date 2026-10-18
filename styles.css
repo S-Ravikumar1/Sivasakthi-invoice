@@ -1,7 +1,7 @@
 *{box-sizing:border-box}
 :root{
   --bg:#f5f6f8;--card:#fff;--text:#171a1f;--muted:#6b7280;--line:#e5e7eb;
-  --dark:#111827;--primary:#111827;--pink:#f0d6de;--danger:#b42318;
+  --dark:#3a9fco;--primary:#111827;--pink:#f0d6de;--danger:#b42318;
 }
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
 button,input,textarea,select{font:inherit}
