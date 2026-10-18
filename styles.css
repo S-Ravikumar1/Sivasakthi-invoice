@@ -5,11 +5,11 @@
 }
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
 button,input,textarea,select{font:inherit}
-button{cursor:pointer}
+button{cursor:pointer;color:var(--text)}
 .topbar{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}
 .brand{display:flex;gap:11px;align-items:center}.brand-icon{height:36px;width:36px;border-radius:8px;background:#00664f;color:#fff;display:grid;place-items:center}
 .brand-title{font-size:15px;font-weight:800}.brand-subtitle{font-size:11px;color:var(--muted);margin-top:1px}
-.top-actions,.heading-actions{display:flex;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent;border-radius:7px;padding:9px 13px;font-size:13px;font-weight:700}.btn.ghost{background:#fff;border-color:var(--line)}.btn.dark,.btn.primary{background:#00664f;color:#fff}.btn.outline{background:#fff;border-color:#d1d5db}
+.top-actions,.heading-actions{display:flex;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent;border-radius:7px;padding:9px 13px;font-size:13px;font-weight:700}.btn.ghost{background:#fff;border-color:var(--line)}.btn.dark,.btn.primary{background:#00664f;color:#fff}.btn.dark svg,.btn.primary svg{color:#fff;stroke:currentColor}.btn.outline{background:#fff;border-color:#d1d5db}
 .page{max-width:1500px;margin:auto;padding:24px 28px 40px}.page-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px}.page-heading h1{font-size:25px;margin:0 0 4px}.page-heading p{margin:0;color:var(--muted);font-size:13px}
 .workspace{display:grid;grid-template-columns:minmax(470px,620px) minmax(480px,1fr);gap:20px;align-items:start}.editor{display:flex;flex-direction:column;gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;box-shadow:0 1px 2px #00000008}.card-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;margin-bottom:14px}.card-title svg{color:#00664f}
