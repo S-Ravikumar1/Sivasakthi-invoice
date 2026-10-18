@@ -9,14 +9,14 @@ import "./styles.css";
 const defaultInvoice = {
   invoiceNo: "1",
   date: new Date().toISOString().slice(0, 10),
-  companyName: "SIVASAKTHI HOSIERY",
-  companyAddress: "19 A-2 B.S.SUNDARAM STREET, AVINASHI, TIRUPPUR, 641654",
-  phone: "9843356611",
-  email: "",
-  gstin: "33AWAPS4955J1Z8",
-  partyName: "JG HOSIERYPVTLTD",
-  partyAddress: "5 JG GARDEN ROAD, SOLLIPALAYAM, TIRUPPUR, 641652",
-  partyGstin: "33AAACJ9381N1Z3",
+  companyName: "SIVA SAKTHI HOSIERY",
+  companyAddress: "123 Street Address, City, Tamil Nadu, 000000",
+  phone: "Phone Number",
+  email: "Email",
+  gstin: "33ABCD1234A1Z5",
+  partyName: "CUSTOMER NAME",
+  partyAddress: "Customer Address, City, State, PIN",
+  partyGstin: "",
   taxMode: "cgstsgst",
   gstRate: 5,
   products: [
@@ -105,7 +105,46 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState([]);
   const [historySearch, setHistorySearch] = useState("");
+  const [parties, setParties] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("sivaInvoiceParties") || "[]"); } catch { return []; }
+  });
+  const [productMaster, setProductMaster] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("sivaInvoiceProducts") || "[]"); } catch { return []; }
+  });
+  const [showPartyForm, setShowPartyForm] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [partyDraft, setPartyDraft] = useState({ name: "", address: "", gstin: "" });
+  const [productDraft, setProductDraft] = useState({ name: "", hsn: "", rate: "" });
   const printRef = useRef(null);
+
+  useEffect(() => { localStorage.setItem("sivaInvoiceParties", JSON.stringify(parties)); }, [parties]);
+  useEffect(() => { localStorage.setItem("sivaInvoiceProducts", JSON.stringify(productMaster)); }, [productMaster]);
+
+  const savePartyMaster = () => {
+    const name = partyDraft.name.trim();
+    if (!name) { alert("Enter party name"); return; }
+    const party = { id: crypto.randomUUID(), name, address: partyDraft.address.trim(), gstin: partyDraft.gstin.trim().toUpperCase() };
+    setParties(prev => [...prev.filter(p => p.name.toLowerCase() !== name.toLowerCase()), party].sort((a,b) => a.name.localeCompare(b.name)));
+    setInvoice(prev => ({ ...prev, partyName: party.name, partyAddress: party.address, partyGstin: party.gstin }));
+    setPartyDraft({ name: "", address: "", gstin: "" });
+    setShowPartyForm(false);
+  };
+  const saveProductMaster = () => {
+    const name = productDraft.name.trim();
+    if (!name) { alert("Enter product name"); return; }
+    const product = { id: crypto.randomUUID(), name, hsn: productDraft.hsn.trim(), rate: productDraft.rate === "" ? 0 : productDraft.rate };
+    setProductMaster(prev => [...prev.filter(p => p.name.toLowerCase() !== name.toLowerCase()), product].sort((a,b) => a.name.localeCompare(b.name)));
+    setProductDraft({ name: "", hsn: "", rate: "" });
+    setShowProductForm(false);
+  };
+  const selectParty = value => {
+    const party = parties.find(p => p.id === value);
+    if (party) setInvoice(prev => ({ ...prev, partyName: party.name, partyAddress: party.address, partyGstin: party.gstin }));
+  };
+  const selectProduct = (productId, value) => {
+    const savedProduct = productMaster.find(p => p.id === value);
+    if (savedProduct) setInvoice(prev => ({ ...prev, products: prev.products.map(p => p.id === productId ? { ...p, name: savedProduct.name, hsn: savedProduct.hsn, rate: savedProduct.rate } : p) }));
+  };
 
   const productTotals = useMemo(() => (
     (invoice.products || []).map(product => {
@@ -291,16 +330,26 @@ function App() {
             </div>
 
             <div className="card">
-              <div className="card-title"><UserRound size={18}/> Customer / Party Details</div>
+              <div className="card-head-row">
+                <div className="card-title"><UserRound size={18}/> Customer / Party Details</div>
+                <button className="small-add" onClick={() => setShowPartyForm(true)}><Plus size={15}/> Add Party</button>
+              </div>
               <div className="form-grid two">
+                <Field label="Select Saved Party">
+                  <select value={parties.find(p => p.name === invoice.partyName && p.address === invoice.partyAddress && p.gstin === invoice.partyGstin)?.id || ""} onChange={e => selectParty(e.target.value)}>
+                    <option value="">Choose a saved party...</option>
+                    {parties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </Field>
                 <Field label="Party Name"><input value={invoice.partyName} onChange={e => update("partyName", e.target.value)} /></Field>
                 <Field label="Customer GSTIN"><input value={invoice.partyGstin} onChange={e => update("partyGstin", e.target.value.toUpperCase())} /></Field>
                 <Field label="Address" full><textarea value={invoice.partyAddress} onChange={e => update("partyAddress", e.target.value)} /></Field>
               </div>
+              <div className="product-help">Add a party once, then select it from the dropdown to fill in the name, address and GSTIN automatically.</div>
             </div>
 
             <div className="card">
-              <div className="card-head-row"><div className="card-title"><FileText size={18}/> Products</div><button className="small-add" onClick={addProduct}><Plus size={15}/> Add Product</button></div>
+              <div className="card-head-row"><div className="card-title"><FileText size={18}/> Products</div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button className="small-add" onClick={() => setShowProductForm(true)}><Plus size={15}/> Add Product Type</button><button className="small-add" onClick={addProduct}><Plus size={15}/> Add Product to Invoice</button></div></div>
               <div className="product-help">Add a product, then add multiple items under it. All PCS values are added together and multiplied by the single rate for that product.</div>
               <div className="product-list">
                 {(invoice.products || []).map((product, pi) => {
@@ -309,6 +358,12 @@ function App() {
                   return <div className="product-card" key={product.id}>
                     <div className="product-card-head"><strong>Product {pi+1}</strong><button className="icon-btn danger" onClick={() => removeProduct(product.id)}><Trash2 size={16}/></button></div>
                     <div className="form-grid product-main-grid">
+                      <Field label="Select Saved Product">
+                        <select value={productMaster.find(p => p.name === product.name && String(p.hsn) === String(product.hsn) && String(p.rate) === String(product.rate))?.id || ""} onChange={e => selectProduct(product.id, e.target.value)}>
+                          <option value="">Choose a saved product...</option>
+                          {productMaster.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                      </Field>
                       <Field label="Product Name"><input placeholder="Product name" value={product.name} onChange={e => updateProduct(product.id,"name",e.target.value)} /></Field>
                       <Field label="HSN Code"><input placeholder="HSN" value={product.hsn} onChange={e => updateProduct(product.id,"hsn",e.target.value)} /></Field>
                       <Field label="Single Rate"><input type="number" min="0" step="0.01" value={product.rate} onChange={e => updateProduct(product.id,"rate",e.target.value)} /></Field>
@@ -360,6 +415,34 @@ function App() {
           </aside>
         </div>
       </div>
+
+      {showPartyForm && (
+        <div className="modal-backdrop" onClick={() => setShowPartyForm(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-head"><b>Add Party</b><button className="icon-btn" onClick={() => setShowPartyForm(false)}><X size={18}/></button></div>
+            <div className="modal-body"><div className="form-grid two">
+              <Field label="Party Name"><input autoFocus value={partyDraft.name} onChange={e => setPartyDraft(p => ({...p, name:e.target.value}))} placeholder="Enter party name" /></Field>
+              <Field label="GSTIN"><input value={partyDraft.gstin} onChange={e => setPartyDraft(p => ({...p, gstin:e.target.value.toUpperCase()}))} placeholder="GSTIN (optional)" /></Field>
+              <Field label="Address" full><textarea value={partyDraft.address} onChange={e => setPartyDraft(p => ({...p, address:e.target.value}))} placeholder="Full party address" /></Field>
+            </div></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => setShowPartyForm(false)}>Cancel</button><button className="btn primary" onClick={savePartyMaster}><Save size={15}/> Save Party</button></div>
+          </div>
+        </div>
+      )}
+
+      {showProductForm && (
+        <div className="modal-backdrop" onClick={() => setShowProductForm(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-head"><b>Add Product Type</b><button className="icon-btn" onClick={() => setShowProductForm(false)}><X size={18}/></button></div>
+            <div className="modal-body"><div className="form-grid two">
+              <Field label="Product Name"><input autoFocus value={productDraft.name} onChange={e => setProductDraft(p => ({...p, name:e.target.value}))} placeholder="Enter product name" /></Field>
+              <Field label="HSN Code"><input value={productDraft.hsn} onChange={e => setProductDraft(p => ({...p, hsn:e.target.value}))} placeholder="HSN code" /></Field>
+              <Field label="Rate per PCS"><input type="number" min="0" step="any" value={productDraft.rate} onChange={e => setProductDraft(p => ({...p, rate:e.target.value}))} placeholder="Rate" /></Field>
+            </div></div>
+            <div className="modal-foot"><button className="btn outline" onClick={() => setShowProductForm(false)}>Cancel</button><button className="btn primary" onClick={saveProductMaster}><Save size={15}/> Save Product</button></div>
+          </div>
+        </div>
+      )}
 
       {showHistory && (
         <div className="modal-backdrop" onClick={() => setShowHistory(false)}>

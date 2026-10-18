@@ -1,16 +1,16 @@
-# Siva Sakthi Invoice Billing Website — Vercel Vector PDF edition
+# Siva Sakthi Hosiery Invoice Billing Website
 
-This project keeps the existing React invoice editor, PostgreSQL/Neon invoice storage, invoice versioning, and A4 layout. PDF download is generated directly by the Vercel `/api/render-pdf` function using jsPDF vector drawing. It does not require Render, `RENDER_PDF_URL`, or `PDF_API_TOKEN`.
+## Party and product dropdowns
+- Use **Add Party** to save a party name, address and GSTIN. Saved parties appear in the party dropdown. Selecting a party fills those three invoice fields automatically.
+- Use **Add Product Type** to save a product name, HSN code and rate. Saved products appear in each product dropdown. Selecting one fills product name, HSN and rate.
+- **Add Product to Invoice** still adds another product row to the current invoice. **Add Item** continues to add DC No / PCS rows under a product.
+- Party and product masters are currently stored in this browser's local storage. They remain available in the same browser/device, but are not shared between devices or browsers. Clearing site data will clear these master lists. Invoice saving/history continues to use the existing API and Neon database.
 
-## Deploy
+## Deployment
+1. Keep the existing Vercel `DATABASE_URL` environment variable.
+2. Upload the updated files to the existing project/repository, preserving any deployment configuration and PDF-generation files already present in your repository.
+3. Deploy using `npm run build` with Vite output directory `dist`.
+4. Test adding/selecting parties and products, invoice saving/history, and PDF download after deployment.
 
-1. Upload the contents of this folder to the root of your GitHub repository.
-2. In Vercel, set `DATABASE_URL` to your Neon PostgreSQL connection string (Production, and Preview if needed).
-3. Build command: `npm run build`; output directory: `dist`.
-4. Redeploy.
-
-The `api/` folder must remain at the repository root so Vercel can detect the serverless functions. The database schema must already be created in Neon.
-
-## PDF notes
-
-The PDF endpoint draws text and borders as vector PDF paths instead of embedding a screenshot of the invoice. Shared borders are drawn once using one line width to avoid thickened overlapping edges. The generated PDF should be tested after deployment against the desired invoice content and layout.
+## Important
+The files supplied in this chat did not include `render-pdf.js` or deployment configuration files such as `vercel.json`. Preserve those files from your existing repository when updating it; they may be required by the current PDF and API routing setup.
