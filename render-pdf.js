@@ -74,8 +74,11 @@ function handler(req, res) {
     const productHeights = productRows.map(p => productBaseHeight + (p.items.length * itemRowHeight));
     const totalRequiredHeight = productHeights.reduce((sum, h) => sum + h, 0);
     const gapsCount = Math.max(0, productRows.length - 1);
+    // Keep a moderate gap similar to the supplied reference; distribute only part of
+    // the remaining space so the products do not get pushed far apart on sparse invoices.
+    const remainingSpace = Math.max(0, productAvailableHeight - totalRequiredHeight);
     const interProductGap = gapsCount
-      ? Math.max(0, (productAvailableHeight - totalRequiredHeight) / gapsCount)
+      ? Math.min(24, (remainingSpace / gapsCount) * 0.28)
       : 0;
 
     let py = productStartY;
