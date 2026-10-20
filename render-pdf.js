@@ -63,19 +63,33 @@ function handler(req, res) {
     // Table headings
     pdf.setFont("helvetica","bold"); pdf.setFontSize(8.5);
     pdf.text("Description",10,80.2); pdf.text("HSN Code",(x1+x2)/2,80.2,{align:"center"}); pdf.text("Qty in pcs",(x2+x3)/2,80.2,{align:"center"}); pdf.text("Rate per",(x3+x4)/2,78.2,{align:"center"}); pdf.text("pcs",(x3+x4)/2,82.1,{align:"center"}); pdf.text("Amount",(x4+x5)/2,80.2,{align:"center"});
-    // Product details; keep the original PDF sizes except for product name (13pt).
-    // Each item's own row contributes to the vertical space used by that product.
-    let py=90;
-    pdf.setFontSize(8.5);
-    for (const p of productRows) {
-      if (py > 193) break;
+    // Product details. Product name is 11pt; all other column font sizes remain original.
+    // Allocate the available description area proportionally to each product's item count,
+    // so adding DC rows to later products automatically reduces the inter-product gaps.
+    const productStartY = 90;
+    const productEndY = y5 - 2;
+    const productAvailableHeight = Math.max(0, productEndY - productStartY);
+    const productBaseHeight = 21;
+    const itemRowHeight = 4;
+    const productHeights = productRows.map(p => productBaseHeight + (p.items.length * itemRowHeight));
+    const totalRequiredHeight = productHeights.reduce((sum, h) => sum + h, 0);
+    const gapsCount = Math.max(0, productRows.length - 1);
+    const interProductGap = gapsCount
+      ? Math.max(0, (productAvailableHeight - totalRequiredHeight) / gapsCount)
+      : 0;
 
-      // Product name: 11pt in the downloaded PDF.
+    let py = productStartY;
+    for (let productIndex = 0; productIndex < productRows.length; productIndex++) {
+      const p = productRows[productIndex];
+      // If content itself exceeds the space, avoid drawing over the fixed totals section.
+      if (py >= productEndY) break;
+
+      // Product name (requested 11pt in downloaded PDF).
       pdf.setFont("helvetica","normal");
       pdf.setFontSize(11);
       pdf.text(text(p.name||"Product"),10,py,{maxWidth:91});
 
-      // Restore the original font size for HSN, Qty, Rate and Amount.
+      // Restore original size and alignment for all non-description columns.
       pdf.setFontSize(8.5);
       pdf.text(text(p.hsn),x2-2,py,{align:"right",maxWidth:20});
       pdf.text(p.qty ? String(p.qty) : "",x3-2,py,{align:"right"});
@@ -83,29 +97,32 @@ function handler(req, res) {
       pdf.text(money(p.amount),x5-3,py,{align:"right",maxWidth:24});
 
       py += 8;
-      // Original DC NO / PCS heading size and weight.
       pdf.setFont("helvetica","bold");
       pdf.setFontSize(7.5);
       pdf.text("DC NO",x0+16,py,{align:"center"});
       pdf.text("PCS",x0+54,py,{align:"center"});
       py += 4;
 
-      // Original item value size; vertical spacing scales with item count.
       pdf.setFont("helvetica","normal");
       pdf.setFontSize(8.5);
       for (const item of p.items) {
-        if (py > 195) break;
+        if (py >= productEndY) break;
         pdf.text(text(item.dcNo||"—"),x0+16,py,{align:"center",maxWidth:30});
         pdf.text(text(item.pcs||0),x0+54,py,{align:"center"});
-        py += 4;
+        py += itemRowHeight;
       }
 
-      // Original Total PCS size and weight.
       pdf.setFont("helvetica","bold");
       pdf.setFontSize(7.5);
-      pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"});
+      if (py < productEndY) {
+        pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"});
+      }
       py += 9;
-      pdf.setFontSize(8.5);
+
+      // Space after each product is dynamic, not a fixed margin.
+      if (productIndex < productRows.length - 1) {
+        py += interProductGap;
+      }
     }
     // Five equal total rows with single vector separators
     pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text("Total Amount (Rs. in Words):",10,y5+7);
