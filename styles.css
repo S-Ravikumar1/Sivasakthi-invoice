@@ -135,8 +135,8 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 }
 
 .pdf-product-name {
-  font-size: 12px !important;
-  line-height: 16px !important;
+  font-size: 15px !important;
+  line-height: 19px !important;
   font-weight: 400 !important;
   margin-bottom: 24px !important;
 }
@@ -146,8 +146,8 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   gap: 0;
   width: 260px;
   margin: 0 0 2px 0;
-  font-size: 11px !important;
-  line-height: 15px !important;
+  font-size: 14px !important;
+  line-height: 18px !important;
   font-weight: 700 !important;
   text-align: center;
 }
@@ -156,8 +156,8 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   grid-template-columns: 1fr 1fr;
   gap: 0;
   width: 260px;
-  font-size: 11px !important;
-  line-height: 15px !important;
+  font-size: 13px !important;
+  line-height: 17px !important;
   font-weight: 400 !important;
   text-align: center;
 }
@@ -165,8 +165,8 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 260px;
-  font-size: 11px !important;
-  line-height: 15px !important;
+  font-size: 14px !important;
+  line-height: 18px !important;
   font-weight: 700 !important;
   margin-top: 1px !important;
   text-align: center;

@@ -68,16 +68,17 @@ function handler(req, res) {
     pdf.setFontSize(8.5);
     for (const p of productRows) {
       if (py > 193) break;
-      pdf.setFont("helvetica","normal"); pdf.text(text(p.name||"Product"),10,py,{maxWidth:91});
+      // Match the Description column font sizes used by the website (CSS px converted approximately to PDF points).
+      pdf.setFont("helvetica","normal"); pdf.setFontSize(15); pdf.text(text(p.name||"Product"),10,py,{maxWidth:91});
       pdf.text(text(p.hsn),x2-2,py,{align:"right",maxWidth:20});
       pdf.text(p.qty ? String(p.qty) : "",x3-2,py,{align:"right"});
       pdf.text(rateText(p.rate),x4-2,py,{align:"right",maxWidth:20});
       pdf.text(money(p.amount),x5-3,py,{align:"right",maxWidth:24});
       py += 8;
-      pdf.setFont("helvetica","bold"); pdf.setFontSize(7.5); pdf.text("DC NO",x0+16,py,{align:"center"}); pdf.text("PCS",x0+54,py,{align:"center"}); py += 4;
-      pdf.setFont("helvetica","normal");
-      for (const item of p.items) { if (py > 195) break; pdf.text(text(item.dcNo||"—"),x0+16,py,{align:"center",maxWidth:30}); pdf.text(text(item.pcs||0),x0+54,py,{align:"center"}); py+=4; }
-      pdf.setFont("helvetica","bold"); pdf.setFontSize(7.5); pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"}); py+=9; pdf.setFontSize(8.5);
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.text("DC NO",x0+16,py,{align:"center"}); pdf.text("PCS",x0+54,py,{align:"center"}); py += 5.5;
+      pdf.setFont("helvetica","normal"); pdf.setFontSize(13);
+      for (const item of p.items) { if (py > 195) break; pdf.text(text(item.dcNo||"—"),x0+16,py,{align:"center",maxWidth:30}); pdf.text(text(item.pcs||0),x0+54,py,{align:"center"}); py+=5; }
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"}); py+=10; pdf.setFontSize(8.5);
     }
     // Five equal total rows with single vector separators
     pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text("Total Amount (Rs. in Words):",10,y5+7);
