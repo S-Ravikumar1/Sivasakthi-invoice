@@ -63,22 +63,54 @@ function handler(req, res) {
     // Table headings
     pdf.setFont("helvetica","bold"); pdf.setFontSize(8.5);
     pdf.text("Description",10,80.2); pdf.text("HSN Code",(x1+x2)/2,80.2,{align:"center"}); pdf.text("Qty in pcs",(x2+x3)/2,80.2,{align:"center"}); pdf.text("Rate per",(x3+x4)/2,78.2,{align:"center"}); pdf.text("pcs",(x3+x4)/2,82.1,{align:"center"}); pdf.text("Amount",(x4+x5)/2,80.2,{align:"center"});
-    // Product details; no extra horizontal product separators.
-    let py=90;
-    pdf.setFontSize(8.5);
+    // Product details. Only the Description column content uses the requested larger font sizes.
+    // HSN, Qty, Rate per pcs, and Amount retain the original 8.5pt size.
+    const productStartY = 90;
+    const productEndY = y5 - 2;
+    const productAvailableHeight = productEndY - productStartY;
+    const blockHeightFor = (p) => 25 + (p.items.length * 5.5);
+    const totalContentHeight = productRows.reduce((sum, p) => sum + blockHeightFor(p), 0);
+    const gapsCount = Math.max(0, productRows.length - 1);
+    const gap = gapsCount
+      ? Math.max(0, Math.min(8, (productAvailableHeight - totalContentHeight) / gapsCount))
+      : 0;
+
+    let py = productStartY;
     for (const p of productRows) {
-      if (py > 193) break;
-      // Match the Description column font sizes used by the website (CSS px converted approximately to PDF points).
-      pdf.setFont("helvetica","normal"); pdf.setFontSize(15); pdf.text(text(p.name||"Product"),10,py,{maxWidth:91});
+      const blockHeight = blockHeightFor(p);
+      // Keep product content within the invoice table, above the fixed totals section.
+      if (py + blockHeight > productEndY) break;
+
+      // Description column: product name 15pt.
+      pdf.setFont("helvetica","normal"); pdf.setFontSize(15);
+      pdf.text(text(p.name||"Product"),10,py,{maxWidth:91});
+
+      // Other columns: restore the original base font size and styling.
+      pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5);
       pdf.text(text(p.hsn),x2-2,py,{align:"right",maxWidth:20});
       pdf.text(p.qty ? String(p.qty) : "",x3-2,py,{align:"right"});
       pdf.text(rateText(p.rate),x4-2,py,{align:"right",maxWidth:20});
       pdf.text(money(p.amount),x5-3,py,{align:"right",maxWidth:24});
+
       py += 8;
-      pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.text("DC NO",x0+16,py,{align:"center"}); pdf.text("PCS",x0+54,py,{align:"center"}); py += 5.5;
+      // Description column heading: 14pt bold.
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(14);
+      pdf.text("DC NO",x0+16,py,{align:"center"});
+      pdf.text("PCS",x0+54,py,{align:"center"});
+      py += 5.5;
+
+      // Description column values: 13pt regular.
       pdf.setFont("helvetica","normal"); pdf.setFontSize(13);
-      for (const item of p.items) { if (py > 195) break; pdf.text(text(item.dcNo||"—"),x0+16,py,{align:"center",maxWidth:30}); pdf.text(text(item.pcs||0),x0+54,py,{align:"center"}); py+=5; }
-      pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"}); py+=10; pdf.setFontSize(8.5);
+      for (const item of p.items) {
+        pdf.text(text(item.dcNo||"—"),x0+16,py,{align:"center",maxWidth:30});
+        pdf.text(text(item.pcs||0),x0+54,py,{align:"center"});
+        py += 5.5;
+      }
+
+      // Description column total: 14pt bold.
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(14);
+      pdf.text(`Total PCS: ${p.qty}`,x0+35,py+1,{align:"center"});
+      py += 7 + gap;
     }
     // Five equal total rows with single vector separators
     pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text("Total Amount (Rs. in Words):",10,y5+7);
