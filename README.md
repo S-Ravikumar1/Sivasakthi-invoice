@@ -30,3 +30,13 @@ This archive combines the latest available invoice project files with the workin
 - This is a source-code backup, not a database backup. It does not include your Neon records or secret environment variables.
 - Do not commit your real `DATABASE_URL` or other secrets into GitHub.
 - Preserve the existing production project and verify deployment before replacing any working files.
+
+
+## Latest theme update — Midnight Navy + Champagne Gold
+- Website background: `#111827`
+- Cards and sections: `#1F2937`
+- Input fields: `#374151`
+- Accent: `#D6B46A`
+- Main text: `#F9FAFB`
+- Live invoice preview remains white with black text.
+- `render-pdf.js` and the PDF generation logic are unchanged.

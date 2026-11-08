@@ -761,3 +761,129 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
     border-color: #000000 !important;
   }
 }
+
+
+/* ==========================================================
+   MIDNIGHT NAVY + CHAMPAGNE GOLD
+   Screen UI only. The live invoice preview stays monochrome.
+   render-pdf.js is intentionally unchanged.
+   ========================================================== */
+@media screen {
+  :root {
+    --bg: #111827;
+    --card: #1F2937;
+    --text: #F9FAFB;
+    --muted: #C3CAD4;
+    --line: #3B4658;
+    --dark: #111827;
+    --primary: #D6B46A;
+    --accent: #D6B46A;
+    --edit-section: #1F2937;
+    --edit-field: #374151;
+    --edit-focus: #46536A;
+  }
+  html, body, .page, .main-content, main {
+    background: #111827 !important;
+    color: #F9FAFB !important;
+  }
+  .topbar, header, .app-header {
+    background: #111827 !important;
+    color: #F9FAFB !important;
+    border-bottom: 1px solid #3B4658 !important;
+  }
+  .brand-icon {
+    background: #D6B46A !important;
+    color: #111827 !important;
+  }
+  .brand-title, .page-heading h1, .page h1, .section-title,
+  .card-title, .topbar *, .page-heading { color: #F9FAFB !important; }
+  .brand-subtitle, .page-heading p, .muted, .help-text,
+  .item-editor-head, .subitems-labels { color: #C3CAD4 !important; }
+
+  .card, .product-card, .product-help, .section-card,
+  .form-section, .panel, .editor-card {
+    background: #1F2937 !important;
+    color: #F9FAFB !important;
+    border: 1px solid #3B4658 !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.20) !important;
+  }
+  .card *, .product-card *, .product-help *, .section-card *,
+  .form-section *, .panel *, .editor-card * { border-color: #3B4658; }
+  .card-title, .field, .field label, label, .subitems-head,
+  .product-card-head, .product-total, .product-card strong,
+  .card h2, .card h3 { color: #F9FAFB !important; }
+  .field small, .field .hint, .card small, .product-help,
+  .product-help p { color: #C3CAD4 !important; }
+
+  .field input, .field textarea, .field select,
+  input, textarea, select, .item-editor-row input, .subitem-row input {
+    background: #374151 !important;
+    color: #F9FAFB !important;
+    border: 1px solid #566174 !important;
+    border-radius: 7px;
+  }
+  input::placeholder, textarea::placeholder {
+    color: #B8C1CE !important;
+    opacity: 1;
+  }
+  input:focus, textarea:focus, select:focus,
+  .field input:focus, .field textarea:focus, .field select:focus {
+    background: #46536A !important;
+    color: #FFFFFF !important;
+    border-color: #D6B46A !important;
+    box-shadow: 0 0 0 3px rgba(214,180,106,.20) !important;
+    outline: none !important;
+  }
+  option { background: #1F2937; color: #F9FAFB; }
+
+  .btn.primary, .btn.dark, .small-add, button.primary {
+    background: #D6B46A !important;
+    color: #111827 !important;
+    border: 1px solid #D6B46A !important;
+    font-weight: 700 !important;
+  }
+  .btn.primary svg, .btn.dark svg {
+    color: #111827 !important;
+    stroke: currentColor !important;
+  }
+  .btn.ghost, .btn.outline, .icon-btn, button.secondary {
+    background: #374151 !important;
+    color: #F9FAFB !important;
+    border: 1px solid #566174 !important;
+  }
+  button:disabled, .btn:disabled { opacity: .55; }
+
+  .preview-panel, .preview-toolbar, .preview-scroll, .modal,
+  .modal-body, .modal-head, .modal-foot {
+    background: #111827 !important;
+    color: #F9FAFB !important;
+    border-color: #3B4658 !important;
+  }
+  .preview-toolbar span, .modal small { color: #C3CAD4 !important; }
+
+  /* Live invoice preview intentionally remains white with black text. */
+  .invoice-paper, .invoice-paper * {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .invoice-paper { border: 1px solid #000000 !important; }
+}
+
+@media print {
+  html, body, .page, .preview-panel, .preview-scroll, .modal-body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .invoice-paper, .invoice-paper * {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
