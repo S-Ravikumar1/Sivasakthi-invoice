@@ -952,3 +952,83 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
     text-shadow: none !important;
   }
 }
+
+/* ==========================================================
+   FINAL FIX — MIDNIGHT NAVY + CHAMPAGNE GOLD
+   Live invoice preview is a clean white document on screen.
+   Saved-record edit controls use the same gold accent as Add.
+   ========================================================== */
+@media screen {
+  /* Strongly override every earlier screen-theme rule inside the
+     invoice document, including table cells and nested product rows. */
+  #root .invoice-paper,
+  #root .invoice-paper *,
+  #root .invoice-paper *::before,
+  #root .invoice-paper *::after {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #777777 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  #root .invoice-paper {
+    border: 1px solid #777777 !important;
+  }
+  #root .invoice-paper .invoice-frame {
+    border: 1.5px solid #777777 !important;
+  }
+  #root .invoice-paper .bill-table {
+    background: #FFFFFF !important;
+    border-collapse: collapse !important;
+  }
+  #root .invoice-paper .bill-table th,
+  #root .invoice-paper .bill-table td,
+  #root .invoice-paper .bill-table tbody,
+  #root .invoice-paper .bill-table tr,
+  #root .invoice-paper .pdf-product-name,
+  #root .invoice-paper .pdf-item-heading,
+  #root .invoice-paper .pdf-product-item,
+  #root .invoice-paper .pdf-product-total,
+  #root .invoice-paper .invoice-summary-row,
+  #root .invoice-paper .words,
+  #root .invoice-paper .totals,
+  #root .invoice-paper .total-row,
+  #root .invoice-paper .declaration-signature,
+  #root .invoice-paper .declaration-half,
+  #root .invoice-paper .signature-half {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  /* All small saved-record edit buttons match the champagne-gold
+     accent, including disabled states when no saved record matches. */
+  .small-add,
+  .small-add:disabled,
+  .small-add[disabled] {
+    background: #D6B46A !important;
+    background-color: #D6B46A !important;
+    color: #111827 !important;
+    border: 1px solid #D6B46A !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+  }
+  .small-add:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+@media print {
+  #root .invoice-paper,
+  #root .invoice-paper *,
+  #root .invoice-paper *::before,
+  #root .invoice-paper *::after {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
