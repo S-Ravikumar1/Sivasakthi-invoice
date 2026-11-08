@@ -509,3 +509,116 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
   .invoice-paper .declaration-half,
   .invoice-paper .signature-half { border-color: #000000 !important; }
 }
+
+/* ==========================================================
+   SIVA SAKTHI — CARBON & ELECTRIC TEAL (SCREEN ONLY)
+   The browser preview uses this theme. Print/PDF is reset below.
+   ========================================================== */
+@media screen {
+  :root {
+    --bg: #17252A;
+    --card: #F0F2F2;
+    --text: #F0F2F2;
+    --muted: #B8C7C9;
+    --line: #365057;
+    --dark: #17252A;
+    --primary: #F0F2F2;
+    --accent: #00A6A6;
+    --edit-section: #DCE7E7;
+    --edit-field: #EDF3F3;
+    --edit-focus: #B8D8D8;
+  }
+  body { background: #17252A !important; color: #F0F2F2 !important; }
+  .topbar { background: #17252A !important; color: #F0F2F2 !important; border-bottom: 1px solid #365057 !important; }
+  .brand-icon { background: #00A6A6 !important; color: #17252A !important; }
+  .brand-title, .page-heading h1, .card-title { color: #F0F2F2 !important; }
+  .brand-subtitle, .page-heading p, .item-editor-head, .subitems-labels { color: #B8C7C9 !important; }
+  .page { color: #F0F2F2; }
+  .card, .product-card, .product-help {
+    background: #DCE7E7 !important;
+    color: #17252A !important;
+    border-color: #B8D8D8 !important;
+  }
+  .card-title, .field, .subitems-head, .product-card-head, .product-total { color: #17252A !important; }
+  .field input, .field textarea, .field select,
+  input, textarea, select, .item-editor-row input, .subitem-row input {
+    background: #EDF3F3 !important;
+    color: #17252A !important;
+    border: 1px solid #B8D8D8 !important;
+  }
+  input::placeholder, textarea::placeholder { color: #64777B !important; }
+  input:focus, textarea:focus, select:focus,
+  .field input:focus, .field textarea:focus, .field select:focus {
+    background: #EDF3F3 !important;
+    border-color: #00A6A6 !important;
+    box-shadow: 0 0 0 3px #00A6A633 !important;
+  }
+  .btn.primary, .btn.dark, .small-add {
+    background: #00A6A6 !important;
+    color: #17252A !important;
+    border-color: #00A6A6 !important;
+  }
+  .btn.primary svg, .btn.dark svg { color: #17252A !important; stroke: currentColor !important; }
+  .btn.ghost, .btn.outline, .icon-btn {
+    background: #DCE7E7 !important;
+    color: #17252A !important;
+    border-color: #B8D8D8 !important;
+  }
+  .preview-panel { background: #17252A !important; border-color: #365057 !important; }
+  .preview-toolbar { background: #17252A !important; color: #F0F2F2 !important; border-color: #365057 !important; }
+  .preview-toolbar span { color: #B8C7C9 !important; }
+  .preview-scroll, .modal-body { background: #17252A !important; }
+  .modal { background: #17252A !important; color: #F0F2F2 !important; }
+  .modal-head, .modal-foot { background: #17252A !important; color: #F0F2F2 !important; border-color: #365057 !important; }
+
+  /* Live invoice preview only: light document surface with teal accents. */
+  .invoice-paper {
+    background: #F0F2F2 !important;
+    color: #17252A !important;
+  }
+  .invoice-paper .invoice-frame { border-color: #17252A !important; }
+  .invoice-paper .invoice-top,
+  .invoice-paper .seller-block,
+  .invoice-paper .party-block { background: #DCE7E7 !important; color: #17252A !important; border-color: #17252A !important; }
+  .invoice-paper .invoice-meta { border-color: #17252A !important; color: #17252A !important; }
+  .invoice-paper .tax-title, .invoice-paper .seller-name,
+  .invoice-paper .party-block b { color: #17252A !important; }
+  .invoice-paper .bill-table { background: #F0F2F2 !important; }
+  .invoice-paper .bill-table th {
+    background: #00A6A6 !important;
+    color: #17252A !important;
+    border-color: #17252A !important;
+  }
+  .invoice-paper .bill-table td {
+    background: #EDF3F3 !important;
+    color: #17252A !important;
+    border-color: #17252A !important;
+  }
+  .invoice-paper .invoice-summary-row .words,
+  .invoice-paper .invoice-summary-row .totals,
+  .invoice-paper .total-row,
+  .invoice-paper .declaration-signature,
+  .invoice-paper .declaration-half,
+  .invoice-paper .signature-half {
+    background: #DCE7E7 !important;
+    color: #17252A !important;
+    border-color: #17252A !important;
+  }
+  .invoice-paper .total-row.grand { background: #00A6A6 !important; color: #17252A !important; }
+  .invoice-paper .pdf-product-name,
+  .invoice-paper .pdf-item-heading,
+  .invoice-paper .pdf-product-item,
+  .invoice-paper .pdf-product-total { color: #17252A !important; }
+}
+
+/* Never carry screen colours into browser printing. The downloadable PDF
+   is generated separately by render-pdf.js and remains black and white. */
+@media print {
+  body, .page, .preview-panel, .preview-scroll, .modal-body { background: #FFFFFF !important; color: #000000 !important; }
+  .invoice-paper, .invoice-paper * { background-color: #FFFFFF !important; color: #000000 !important; }
+  .invoice-paper .bill-table th, .invoice-paper .bill-table td { background: #FFFFFF !important; color: #000000 !important; }
+  .invoice-paper .invoice-top, .invoice-paper .seller-block, .invoice-paper .party-block,
+  .invoice-paper .invoice-summary-row .words, .invoice-paper .invoice-summary-row .totals,
+  .invoice-paper .total-row, .invoice-paper .declaration-signature,
+  .invoice-paper .declaration-half, .invoice-paper .signature-half { background: #FFFFFF !important; color: #000000 !important; }
+}
