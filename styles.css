@@ -1032,3 +1032,145 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
     text-shadow: none !important;
   }
 }
+
+/* ==========================================================
+   FINAL THEME — GRAPHITE + ELECTRIC BLUE
+   Website UI only. Live invoice remains white/black.
+   Downloaded PDF generator is not modified.
+   ========================================================== */
+@media screen {
+  :root {
+    --bg: #171A21;
+    --card: #242936;
+    --text: #F4F6FA;
+    --muted: #B8C0CC;
+    --line: #3A4352;
+    --dark: #171A21;
+    --primary: #55A6FF;
+    --accent: #55A6FF;
+    --edit-section: #242936;
+    --edit-field: #303746;
+    --edit-focus: #3B4A60;
+  }
+  html, body, .page, .main-content, main,
+  .topbar, header, .app-header {
+    background: #171A21 !important;
+    color: #F4F6FA !important;
+  }
+  .topbar, header, .app-header {
+    border-bottom: 1px solid #3A4352 !important;
+  }
+  .brand-icon {
+    background: #55A6FF !important;
+    color: #171A21 !important;
+  }
+  .brand-title, .page-heading h1, .page h1, .section-title,
+  .card-title, .topbar *, .page-heading,
+  .card-title, .field, .field label, label, .subitems-head,
+  .product-card-head, .product-total, .product-card strong,
+  .card h2, .card h3 { color: #F4F6FA !important; }
+  .brand-subtitle, .page-heading p, .muted, .help-text,
+  .item-editor-head, .subitems-labels, .field small,
+  .field .hint, .card small { color: #B8C0CC !important; }
+
+  .card, .product-card, .product-help, .section-card,
+  .form-section, .panel, .editor-card {
+    background: #242936 !important;
+    color: #F4F6FA !important;
+    border: 1px solid #3A4352 !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.20) !important;
+  }
+  .card *, .product-card *, .product-help *, .section-card *,
+  .form-section *, .panel *, .editor-card * { border-color: #3A4352; }
+
+  .field input, .field textarea, .field select,
+  input, textarea, select, .item-editor-row input, .subitem-row input {
+    background: #303746 !important;
+    color: #F4F6FA !important;
+    border: 1px solid #4A5568 !important;
+    border-radius: 7px;
+  }
+  input::placeholder, textarea::placeholder {
+    color: #AEB8C7 !important;
+    opacity: 1;
+  }
+  input:focus, textarea:focus, select:focus,
+  .field input:focus, .field textarea:focus, .field select:focus {
+    background: #3B4A60 !important;
+    color: #FFFFFF !important;
+    border-color: #55A6FF !important;
+    box-shadow: 0 0 0 3px rgba(85,166,255,.20) !important;
+    outline: none !important;
+  }
+  option { background: #242936; color: #F4F6FA; }
+
+  /* Blue is reserved for primary actions and saved-record edits. */
+  .btn.primary, .btn.dark, .small-add, button.primary,
+  .small-add:disabled, .small-add[disabled] {
+    background: #55A6FF !important;
+    background-color: #55A6FF !important;
+    color: #171A21 !important;
+    border: 1px solid #55A6FF !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+  }
+  .btn.primary svg, .btn.dark svg {
+    color: #171A21 !important;
+    stroke: currentColor !important;
+  }
+  .btn.ghost, .btn.outline, .icon-btn, button.secondary,
+  .top-actions .btn.dark,
+  .heading-actions .btn.primary,
+  .modal-foot .btn.primary {
+    background: #303746 !important;
+    color: #F4F6FA !important;
+    border: 1px solid #4A5568 !important;
+    box-shadow: none !important;
+  }
+  .top-actions .btn.dark svg,
+  .heading-actions .btn.primary svg,
+  .modal-foot .btn.primary svg {
+    color: #F4F6FA !important;
+    stroke: currentColor !important;
+  }
+
+  .preview-panel, .preview-toolbar, .preview-scroll, .modal,
+  .modal-body, .modal-head, .modal-foot {
+    background: #171A21 !important;
+    color: #F4F6FA !important;
+    border-color: #3A4352 !important;
+  }
+  .preview-toolbar span, .modal small { color: #B8C0CC !important; }
+
+  /* Keep the whole on-screen A4 invoice pure white with black text. */
+  #root .invoice-paper,
+  #root .invoice-paper *,
+  #root .invoice-paper *::before,
+  #root .invoice-paper *::after {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #777777 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  #root .invoice-paper { border: 1px solid #777777 !important; }
+}
+
+@media print {
+  html, body, .page, .preview-panel, .preview-scroll, .modal-body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  #root .invoice-paper,
+  #root .invoice-paper *,
+  #root .invoice-paper *::before,
+  #root .invoice-paper *::after {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
