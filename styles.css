@@ -887,3 +887,68 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
     text-shadow: none !important;
   }
 }
+
+/* ==========================================================
+   FINAL REFINEMENTS
+   1) Make Preview and Download PDF match the slate buttons.
+   2) Keep the complete live A4 invoice preview monochrome.
+   ========================================================== */
+@media screen {
+  /* Consistent secondary action buttons: New, Invoices, Save,
+     Print, Preview and Download PDF. */
+  .top-actions .btn.dark,
+  .heading-actions .btn.primary,
+  .modal-foot .btn.primary {
+    background: #374151 !important;
+    color: #F9FAFB !important;
+    border: 1px solid #566174 !important;
+    box-shadow: none !important;
+  }
+  .top-actions .btn.dark svg,
+  .heading-actions .btn.primary svg,
+  .modal-foot .btn.primary svg {
+    color: #F9FAFB !important;
+    stroke: currentColor !important;
+  }
+
+  /* The document is a white sheet, regardless of website theme.
+     Explicitly reset nested blocks, table cells and text elements
+     to prevent dark-theme colours bleeding into the preview. */
+  .preview-panel .invoice-paper,
+  .preview-panel .invoice-paper * ,
+  .modal-body .invoice-paper,
+  .modal-body .invoice-paper * {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+    border-color: #777777 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .preview-panel .invoice-paper,
+  .modal-body .invoice-paper {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #777777 !important;
+  }
+  .preview-panel .invoice-paper input,
+  .preview-panel .invoice-paper textarea,
+  .preview-panel .invoice-paper select,
+  .modal-body .invoice-paper input,
+  .modal-body .invoice-paper textarea,
+  .modal-body .invoice-paper select {
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    border-color: #777777 !important;
+  }
+}
+
+@media print {
+  .invoice-paper, .invoice-paper * {
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
