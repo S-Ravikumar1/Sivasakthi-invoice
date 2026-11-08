@@ -401,3 +401,73 @@ input,textarea,select{width:100%;border:1px solid #d5d9df;background:#fff;border
 .pdf-product-total {
   font-size: 11px !important;
 }
+
+/* ===== Siva Sakthi website theme: strictly the supplied three-colour palette =====
+   App chrome only. The invoice paper/print styling and generated PDF are intentionally untouched.
+*/
+:root {
+  --bg: #d6d3cb;
+  --card: #d6d3cb;
+  --text: #182016;
+  --muted: #646d5e;
+  --line: #646d5e;
+  --dark: #182016;
+  --primary: #182016;
+  --pink: #646d5e;
+  --danger: #646d5e;
+}
+
+body, .app { background: #d6d3cb; color: #182016; }
+.topbar { background: #182016; color: #d6d3cb; border-bottom-color: #646d5e; }
+.brand-title { color: #d6d3cb; }
+.brand-subtitle { color: #646d5e; }
+.brand-icon { background: #646d5e; color: #d6d3cb; }
+.page-heading h1 { color: #182016; }
+.page-heading p { color: #646d5e; }
+.card, .product-card { background: #d6d3cb; color: #182016; border-color: #646d5e; box-shadow: none; }
+.card-title, .field, .subitems-head { color: #182016; }
+.card-title svg { color: #646d5e; }
+input, textarea, select {
+  background: #d6d3cb;
+  color: #182016;
+  border-color: #646d5e;
+}
+input::placeholder, textarea::placeholder { color: #646d5e; opacity: 1; }
+.field input:focus, .field textarea:focus, .field select:focus,
+input:focus, textarea:focus, select:focus {
+  border-color: #182016;
+  box-shadow: 0 0 0 2px rgba(100, 109, 94, .28);
+}
+.btn.ghost, .btn.outline, .small-add, .icon-btn {
+  background: #d6d3cb;
+  color: #182016;
+  border-color: #646d5e;
+}
+.btn.dark, .btn.primary {
+  background: #182016;
+  color: #d6d3cb;
+  border-color: #182016;
+}
+.btn.dark svg, .btn.primary svg { color: #d6d3cb; stroke: currentColor; }
+.btn.ghost:hover, .btn.outline:hover, .small-add:hover, .icon-btn:hover {
+  background: #646d5e;
+  color: #d6d3cb;
+}
+.btn.dark:hover, .btn.primary:hover { background: #646d5e; border-color: #646d5e; }
+.icon-btn.danger { color: #646d5e; }
+.item-editor-head, .subitems-labels { color: #646d5e; }
+.product-help { background: #d6d3cb; color: #646d5e; border-color: #646d5e; }
+.product-total { color: #182016; border-top-color: #646d5e; }
+.preview-panel { background: #d6d3cb; border-color: #646d5e; }
+.preview-toolbar { background: #182016; color: #d6d3cb; border-bottom-color: #646d5e; }
+.preview-toolbar span { color: #646d5e; }
+.preview-scroll, .modal-body { background: #646d5e; }
+.modal-backdrop { background: rgba(24, 32, 22, .68); }
+.modal { background: #d6d3cb; color: #182016; }
+.modal-head, .modal-foot { background: #d6d3cb; color: #182016; border-color: #646d5e; }
+.history-search { color: #182016; }
+.history-list { background: #d6d3cb; }
+.history-row { background: #d6d3cb; color: #182016; border-color: #646d5e; }
+.history-row:hover { background: #646d5e; color: #d6d3cb; }
+.history-empty, .history-party { color: #646d5e; }
+button:disabled { opacity: .55; }

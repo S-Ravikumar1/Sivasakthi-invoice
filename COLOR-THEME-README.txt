@@ -1,4 +1,6 @@
-Color theme update
-Primary dark text and black backgrounds have been changed to #00664f (deep green).
-Updated CSS theme variables, brand icon, primary/dark buttons, and dark text colors.
-The invoice layout and database/API behavior are otherwise intended to remain unchanged.
+Website colour theme updated using only the supplied palette for the application interface:
+- #d6d3cb — warm stone background and light surfaces
+- #646d5e — muted sage secondary elements, borders and supporting text
+- #182016 — deep forest primary actions and main text
+
+The invoice paper/print styling and render-pdf.js generator are unchanged. Database, invoice APIs, numbering, party/product masters and deployment files are unchanged.
